@@ -203,8 +203,3 @@ n4<-nrow(bc.t.over)}
 
 
 
-dev.copy(jpeg,"TEST_SE.jpeg",width = 300, height = 300,units = "mm", res = 400)
-dev.off()
-
-
-

@@ -334,3 +334,9 @@ vis_cor(USdata[c(1,7,13,19:42)]) + geom_text(aes(label = round(value,2)),
 
 
 pairs(cor_dat)
+
+
+
+#### 50 species
+
+
