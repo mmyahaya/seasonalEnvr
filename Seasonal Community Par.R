@@ -1,17 +1,16 @@
 library(foreach)
 library(doParallel)
-library(ggplot2)
 library(tidyverse) 
 library(dplyr)
 
 # Define the number of cores to use
 detectCores()
-cores<-12
+cores<-10
 # Register the parallel backend
 cl <- makeCluster(cores)
 registerDoParallel(cl)
-M=7
-N=13
+M=3
+N=5
 
 # Define the functions
 lotka<-function(t,y,parameters){
@@ -44,8 +43,8 @@ Urand<-function(mu_y,var_y,m,n){
 #Model Simulation
 integrate_model<-function(itr){
   
-  M=7
-  N=13
+  M=3
+  N=5
   RMatA<-matrix(1/M,M,N)
   
   uP<-Urand(0.1,0.02,M,1)
@@ -140,8 +139,32 @@ integrate_model<-function(itr){
   n2<-floor(seq(1,nrow(bc.t.over),length.out=4))[2]
   n3<-floor(seq(1,nrow(bc.t.over),length.out=4))[3]
   n4<-nrow(bc.t.over)
+  
   turn.over<-c(colMeans(bc.t.over[n1:n2,]),colMeans(bc.t.over[(n2+1):n3,]),colMeans(bc.t.over[n3:n4,]))
-  output<-c(turn.over,"mean_rP"=mean(c(rP)),"mean_rA"=mean(c(rA)),"mean_cP"=mean(c(CP)),
+  names(turn.over)<-c("Vis.bc1", "bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1", 
+                      "Vis.bc2", "bet.bc2", "Enc.bc2", "XP.bc2", "XA.bc2", "Fi.bc2", 
+                      "Vis.bc3", "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3")
+  
+  structures<-data.frame("H2"=c(),"mod"=c(),"nes"=c())
+  for(i in seq(1,(dim(solu1)[1]),70)){
+    XA.t<-as.matrix(A1[i,2:(N+1)],nr=N)
+    Fi.t<-as.matrix(F1[i,2:(M+1)],nr=M)
+    bet.t<-matrix(FE[i,2:(M*N+1)],M,N)
+    V.t<-bet.t*(Fi.t%*%t(XA.t))
+    #Computation of network structural properties 
+    H2<-bipartite::H2fun(V.t, H2_integer = FALSE)[1] #Specialisation
+    mod<-bipartite::computeModules(V.t)@likelihood  # Modularity
+    nes<-bipartite::nested(V.t,method = "WNODA") # Nestedness
+    structures.values<-c(H2,mod,nes)
+    structures<-rbind(structures,structures.values)
+  }
+  
+  structures<-c(colMeans(structures[n1:n2,]),colMeans(structures[(n2+1):n3,]),
+                colMeans(structures[n3:n4,]))
+  names(structures)<-c("H2.1","mod.1","nes.1","H2.2","mod.2","nes.2",
+                       "H2.3","mod.3","nes.3")
+  
+  output<-c(turn.over,structures,"mean_rP"=mean(c(rP)),"mean_rA"=mean(c(rA)),"mean_cP"=mean(c(CP)),
             "mean_cA"=mean(c(CA)),"mean_sigmaP"=mean(c(sigma_P)),"mean_sigmaA"=mean(c(sigma_A)),
             "mean_a"=mean(c(a)),"mean_w"=mean(c(w)),"mean_sP"=mean(c(sP)),"mean_sA"=mean(c(sA)),
             "mean_uP"=mean(c(uP)),"mean_uA"=mean(c(uA)),
@@ -160,7 +183,7 @@ integrate_model<-function(itr){
   
 }
 # Define the parallel loop
-clusterExport(cl,c("lotka","Urand","M","N"))
+clusterExport(cl,c("lotka","Urand"))
 system.time(t.data<-foreach(itr=rep(1:3), .combine = rbind, .packages='tidyverse') %dopar% {
   values<-integrate_model(itr)
   

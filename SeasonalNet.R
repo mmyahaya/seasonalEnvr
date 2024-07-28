@@ -197,8 +197,22 @@ n4<-nrow(bc.t.over)}
 
 
 
-
-
+structures<-data.frame("H2"=c(),"mod"=c(),"nes"=c())
+for(i in seq(1,(dim(solu1)[1]),70)){
+  XA.t<-as.matrix(A1[i,2:(N+1)],nr=N)
+  
+  Fi.t<-as.matrix(F1[i,2:(M+1)],nr=M)
+  
+  bet.t<-matrix(FE[i,2:(M*N+1)],M,N)
+  
+  V.t<-bet.t*(Fi.t%*%t(XA.t))
+  #Computation of network structural properties 
+  H2<-H2fun(V.t, H2_integer = FALSE)[1] #Specialisation
+  mod<-computeModules(V.t)@likelihood  # Modularity
+  nes<-nested(V.t,method = "WNODA") # Nestedness
+  structures.values<-c(H2,mod,nes)
+  structures<-rbind(structures,structures.values)
+}
 
 
 
