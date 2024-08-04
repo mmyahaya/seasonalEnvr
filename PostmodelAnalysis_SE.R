@@ -3,15 +3,11 @@ library(car)
 library(zetadiv)
 library(ggplot2)
 library(MuMIn)
+library(ggcorrplot)
 
 
-tover<-read.csv("Turnover.csv")
 
-USdata2<-na.omit(USdata2)
-names(USdata2)<-names(USdata)
-USdata3<-na.omit(USdata3)
-
-tover<-USdata3[1:1500,]
+tover<-USdata3
 tover<-na.omit(tover)
 Vis.mat<-tover[,c(1,7,13)]
 names(Vis.mat)<-c("Early","Mid","Late")
@@ -48,8 +44,7 @@ one.test.T3<-aov(Turnover ~ Factor, data = T3)
 summary(one.test.T3)
 TukeyHSD(one.test.T3)->Tuk3
 Tuk3
-write.csv(Tuk3$Factor,"Tuk3.csv",row.names = T)
-
+write.csv2(Tuk3$Factor,"Tuk3.csv",row.names = T)
 
 # Model comparison
 maineffects.glm1 <-glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1+XA.bc1+Fi.bc1, 
@@ -90,7 +85,7 @@ my_vif1
 my_vif1[my_vif1>5]
 
 #Mid 
-fitted_bc2<-glm.cons(formula = Vis.bc2 ~bet.bc2+Enc.bc2+XP.bc2+XA.bc2 , 
+fitted_bc2<-glm.cons(formula = Vis.bc2 ~bet.bc2+XP.bc2+XA.bc2, 
                      data = tover,cons = 1)
 
 
@@ -103,7 +98,7 @@ my_vif2
 my_vif2[my_vif2>5]
 
 # Late
-fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3 , 
+fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+XP.bc3+XA.bc3 , 
                      data = tover,cons = 1,na.action = na.pass)
 
 
@@ -155,9 +150,10 @@ for(n in 1:length(resp_bc3_name)){
   comm.analysis.bc3<-rbind(comm.analysis.bc3,data.frame("Var"=var.name,"Perc.bc3"=perc))
 }
 
-stat.data<-data.frame( "Phase"=c(rep("Early",5),rep("Mid",5),rep("Late",5)),
+stat.data<-data.frame("Phase"=c(rep("Early",5),rep("Mid",5),rep("Late",5)),
                       "Predictor"=c(rep(c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"),3)),
-                      "Percentage"=c(comm.analysis.bc1$Perc.bc1,NA,NA,comm.analysis.bc2$Perc.bc2,NA,comm.analysis.bc3$Perc.bc3,NA,NA)*100)
+                      "Percentage"=c(comm.analysis.bc1$Perc.bc1,NA,NA,comm.analysis.bc2[1,2],NA,comm.analysis.bc2[2:3,2],NA,
+                                     comm.analysis.bc3[1,2],NA,comm.analysis.bc3[2:3,2],NA)*100)
 stat.data$Phase <- factor(stat.data$Phase, levels = c("Early", "Mid","Late"))
 stat.data$Predictor<- factor(stat.data$Predictor, levels = c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"))
 stat.data<-na.omit(stat.data)
@@ -183,7 +179,7 @@ ggsave("Turnv_US101.jpeg", plot =Turnv.plot ,
 #Plots
 layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
 par(mar = c(3,4.5,2,1.5))
-tplot<-boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover", 
+boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover", 
         main="Interaction", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
@@ -295,7 +291,7 @@ grid.arrange(eff_plot.bb3,eff_plot.be3, eff_plot.bp3,
 
 ggsave("eff.3.jpeg", plot =eff.plot.3 ,
        width = 16, height = 9, dpi = 600)
-
+#--------------------------------------------------
 cor_dat<-tover[c(1,7,13,20,21,26:30,33,35:37,39,41,42)]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
@@ -307,12 +303,24 @@ ggsave("USggfull1.jpeg", plot =USggfull ,
 
 
 customise<-c("Vis.bc1"="Int. Early","Vis.bc2"="Int. Mid","Vis.bc3"="Int. Late",
-             "mean_rA"="M. Animal amplitude","mean_cP"="M. Plant denity dep.",
-             "mean_w"="M. decay rate","mean_sP"="M. Plant SS",
-             "mean_sA"="M. Animal SS","mean_uP"="M. Plant SL","mean_uA"="M. Animal SL",
+             "H2.1"="Specialisation (Early)",
+             "H2.2"="Specialisation (Mid)",
+             "H2.3"="Specialisation (Late)",
+             "mod.1"="Modularity (Early)",
+             "mod.2"="Modularity (Mid)",
+             "mod.3"="Modularity (Late)",
+             "nes.1"="Nestedness (Early)",
+             "nes.2"="Nestedness (Mid)",
+             "nes.3"="Nestedness (Late)",
+             "mean_rA"="M. Animal amplitude","mean_rP"="M. Plant amplitude",
+             "mean_cP"="M. Plant denity dep.",
+             "mean_w"="M. decay rate","mean_sP"="M. Plant BP",
+             "mean_sA"="M. Animal BP","mean_uP"="M. Plant SL",
+             "mean_uA"="M. Animal SL","var_rP"="V. Plant amplitude",
+             "var_rA"="V. Animal amplitude","var_sA"="V. Animal BP",
              "var_cP"="V. Plant density dep.","var_sigmaP"="V. Plant conversion eff.",
-             "var_sigmaA"="V. Animal conversion eff.","var_a"="V. floral resource","var_sP"="V. Plant SS",
-             "var_uP"="V. Plant SS","var_uA"="V. Animal SL")
+             "var_sigmaA"="V. Animal conversion eff.","var_a"="V. floral resource","var_sP"="V. Plant BP",
+             "var_uP"="V. Plant SL","var_uA"="V. Animal SL")
 
 
 cor_dat<-tover[c(1,7,13,20,21,26:30,33,35:37,39,41,42)]
@@ -329,14 +337,144 @@ ggsave("USggsig1.jpeg", plot =USggsigplot ,
 
 
 
-vis_cor(USdata[c(1,7,13,19:42)]) + geom_text(aes(label = round(value,2)), 
-                                             color = "black", size = 3)
+visdat::vis_cor(tover[,c(names(tover)[19:27],seasonParm)]) + 
+  geom_text(aes(label = round(value,2)), 
+                                             color = "black", size = 3)+
+  scale_y_discrete(labels = customise)+
+  scale_x_discrete(labels = customise,position = "top")
 
 
 pairs(cor_dat)
 
+USggsigplot
+
+#### Network structures
+#c(names(tover)[19:27],seasonParm)
+cor_dat<-tover[,c(names(tover)[19:27],seasonParm)]
+corr <- round(cor(cor_dat), 2)
+p.mat <- cor_pmat(cor_dat)
+ggcorrplot((corr[,1:9]), hc.order = FALSE,
+           lab = TRUE, p.mat = (p.mat[,1:9]),insig = c("blank"))+
+  scale_y_discrete(labels = customise)+
+  scale_x_discrete(labels = customise)->ggcorplot
+
+ggsave("ggcor_Net.jpeg", plot =ggcorplot,
+       width = 16, height = 9, dpi = 600)
+
+visdat::vis_cor(tover[c(1:27)]) + geom_text(aes(label = round(value,2)), 
+                                             color = "black", size = 3)
+
+# H2 test
+H2.mat<-data.frame(tover$H2.1,tover$H2.2,tover$H2.3)
+names(H2.mat)<-c("Early","Mid","Late")
+
+one.test.V<-aov(Turnover ~ Period, data = melt(H2.mat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+# mod test
+mod.mat<-data.frame(tover$mod.1,tover$mod.2,tover$mod.3)
+names(mod.mat)<-c("Early","Mid","Late")
+mod.mat<-melt(mod.mat,value.name = "Turnover",variable.name = "Period")
+one.test.V<-aov(Turnover ~ Period, data = mod.mat)
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+# nes test
+nes.mat<-data.frame(tover$nes.1,tover$nes.2,tover$nes.3)
+names(nes.mat)<-c("Early","Mid","Late")
+nes.mat<-melt(nes.mat,value.name = "Turnover",variable.name = "Period")
+one.test.V<-aov(Turnover ~ Period, data = nes.mat)
+summary(one.test.V)
+TukeyHSD(one.test.V)
 
 
-#### 50 species
+
+boxplot(H2.mat,col = c("grey"), boxwex = 0.5, ylab="Specialisation (H'2)", 
+        main="Specialisation", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
+
+boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)", 
+        main="Modularity", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+
+
+boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)", 
+        main="Nestedness", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+
+
+dev.copy(jpeg,"box_Net.jpeg",width = 300, height = 300,units = "mm", res = 600)
+dev.off()
+
+seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP", 
+  "mean_uA", "var_rP", "var_rA", "var_sP", "var_sA", "var_uP", 
+  "var_uA")
+
+
+
+# Model comparison
+H2.glm2 <-glm(formula = H2.2 ~ mean_rP + mean_rA + mean_sP + mean_sA + 
+                mean_uP + mean_uA + var_rP + var_rA + var_sP + var_sA + var_uP + var_uA, 
+                            data = tover,na.action = na.pass)
+
+
+sum.H2.2<-summary.glm(H2.glm2)
+sum.H2.2
+
+
+with(summary(H2.glm2), 1 - deviance/null.deviance)
+vif(H2.glm1)->my_vif1
+my_vif1
+my_vif1[my_vif1>5]
+
+H2.comparison1 <- dredge(H2.glm1)
+head(H2.comparison1)
+as.matrix(mega.model.comparison1)->mmc1
+write.csv(mmc1,"mmc1.csv",row.names = F) 
+
+
+
+
+mod.glm1 <-glm(formula = mod.1 ~ mean_rP + mean_rA + mean_sP + mean_sA + 
+                 mean_uP + mean_uA + var_rP + var_rA + var_sP + var_sA + var_uP + var_uA, 
+              data = tover, na.action = na.pass)
+
+
+
+sum.mod.1<-summary.glm(mod.glm1)
+sum.mod.1
+
+
+with(summary(mod.glm1), 1 - deviance/null.deviance)
+vif(mod.glm1)->my_vif1
+my_vif1
+my_vif1[my_vif1>5]
+
+
+mod.comparison1 <- dredge(mod.glm1)
+head(mod.comparison1)
+
+
+
+
+nes.glm2 <-glm(formula = nes.2 ~ mean_rA + mean_sP + mean_sA 
+               + mean_uA + var_rP  + var_sP + var_sA + var_uA, 
+               data = tover, na.action = na.pass)
+
+
+sum.nes.2<-summary.glm(nes.glm2)
+sum.nes.2
+
+
+with(summary(nes.glm2), 1 - deviance/null.deviance)
+vif(nes.glm2)->my_vif1
+my_vif1
+my_vif1[my_vif1>5]
+
+
+nes.comparison2 <- dredge(nes.glm2)
+head(nes.comparison2)
