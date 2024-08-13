@@ -183,7 +183,7 @@ ggsave("Turnv_His.tiff", plot =Turnv.plot ,
 layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
 par(mar = c(3,4.5,2,1.5))
 boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover", 
-        main="Interaction", names =c("Early","Mid", "Late"),
+        main="Interaction turnover", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
@@ -345,20 +345,19 @@ seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP",
 cor_dat<-tover[c("Vis.bc1","Vis.bc2","Vis.bc3",seasonParm)]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
-ggcorrplot(corr[,1:3], hc.order = FALSE,
-           lab = TRUE,p.mat = p.mat[,1:3], insig = "blank")+
+ggcorrplot(corr[-c(4,7,10,11,13:15),1:3],
+           hc.order = FALSE,lab_size = 8, tl.cex =18, 
+           lab = TRUE,sig.level = 0.001,p.mat = p.mat[-c(4,7,10,11,13:15),1:3], insig = "blank")+
   scale_y_discrete(labels = customise)+
-  scale_x_discrete(labels = customise)+
-  theme(text = element_text(size=18),
-        axis.text.x = element_text(size = 20))->USggfull
+  scale_x_discrete(labels = customise)->USggfull
 USggfull
 ggsave("Int&parmgg.tiff", plot =USggfull ,
-       width = 14, height = 9, dpi = 600)
+       width = 12, height = 7, dpi = 600)
 
 
-
-
-
+corr[rownames()]
+dput(rownames(corr))
+c( "mean_rP", "mean_sP", "mean_uP", "mean_uA", "var_sP")
 
 
 
@@ -379,11 +378,10 @@ cor_dat<-tover[,c(names(tover)[1:27])]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
 ggcorrplot((corr[,19:27]), hc.order = FALSE,
-           lab = TRUE, p.mat = (p.mat[,19:27]),insig = c("blank"))+
+           lab = TRUE, sig.level = 0.001,pch = 8,tl.cex = 18, p.mat = (p.mat[,19:27]),insig = c("blank"))+
   scale_y_discrete(labels = customise)+
-  scale_x_discrete(labels = customise)+
-  theme(axis.text.x = element_text(size = 20))->ggcorplot
-
+  scale_x_discrete(labels = customise)->ggcorplot
+ggcorplot
 ggsave("ggcor_Net&Turn.tiff", plot =ggcorplot,
        width = 16, height = 9, dpi = 600)
 
