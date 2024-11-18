@@ -154,7 +154,7 @@ matplot((1:nrow(P1))/10,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = 
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)",
         cex.lab=2.0,cex.axis=2.0)
 
-bc.t.over<-data.frame("Vis.bc"=numeric(),  "bet.bc"=numeric(), "Enc.bc"=numeric(),
+bc.t.over<-data.frame("Vis.bc"=numeric(),"bet.bc"=numeric(), "Enc.bc"=numeric(),
                       "XP.bc"=numeric(),"XA.bc"=numeric(),"Fi.bc"=numeric(),
                       "H2.c"=numeric(),"mod.c"=numeric(),"nes.c"=numeric())
 for (i in seq(1,(dim(solu1)[1]-70),70)){
@@ -205,25 +205,27 @@ n4<-nrow(bc.t.over)}
 
 
 
-structures<-data.frame("H2"=c(),"mod"=c(),"nes"=c(),
-                       "XA"=c(),"XP"=c(),"Fi"=c(),"Enc"=c(),"V"=c())
+structures<-data.frame()
 for(i in seq(1,(dim(solu1)[1]),70)){
   XA.t<-as.matrix(A1[i,2:(N+1)],nr=N)
   XP.t<-as.matrix(P1[i,2:(M+1)])
   Fi.t<-as.matrix(F1[i,2:(M+1)],nr=M)
   Enc.t<-Fi.t%*%t(XA.t)
   bet.t<-matrix(FE[i,2:(M*N+1)],M,N)
-  
   V.t<-bet.t*(Fi.t%*%t(XA.t))
   #Computation of network structural properties 
   H2<-H2fun(V.t, H2_integer = FALSE)[1] #Specialisation
   mod<-computeModules(V.t)@likelihood  # Modularity
   nes<-nested(V.t,method = "WNODA") # Nestedness
-  structures.values<-c(H2,mod,nes,
-                       "XA"=mean(XA.t),"XP"=mean(XP.t),"Fi"=mean(Fi.t),
-                       "Enc"=mean(c(Enc.t)),"V"=mean(c(V.t)))
+  structures.values<-c(H2,mod,nes,mean(XP.t),mean(XA.t),mean(Fi.t),
+                       mean(c(Enc.t)),mean(c(V.t)))
   structures<-rbind(structures,structures.values)
 }
+structures<-c(colMeans(structures[n1:n2,]),colMeans(structures[(n2+1):n3,]),
+              colMeans(structures[n3:n4,]))
+names(structures)<-c("H2.1","mod.1","nes.1","XP.1","XA.1","Fi.1","Enc.1","V.1",
+                     "H2.2","mod.2","nes.2","XP.2","XA.2","Fi.2","Enc.2","V.2",
+                     "H2.3","mod.3","nes.3","XP.3","XA.3","Fi.3","Enc.3","V.3")
 
 
 

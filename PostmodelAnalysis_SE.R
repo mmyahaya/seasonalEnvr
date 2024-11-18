@@ -9,10 +9,10 @@ library(ggcorrplot)
 
 
 
-tover<-Net_with_structure_main
+tover<-Net_with_structure2
 tover<-na.omit(tover)
 tover<-tover[1:1500,]
-Vis.mat<-tover[,c(1,7,13)]
+Vis.mat<-tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")]
 names(Vis.mat)<-c("Early","Mid","Late")
 
 Vis.mat<-melt(Vis.mat,value.name = "Turnover",variable.name = "Period")
@@ -21,7 +21,7 @@ summary(one.test.V)
 TukeyHSD(one.test.V)
 
 #Early
-T1<-tover[,2:6]
+T1<-tover[,c("bet.bc1", "Enc.bc1" ,"XP.bc1" , "XA.bc1" , "Fi.bc1" )]
 names(T1)<-c("FE","Enc.","Pl.","An.","Fl.")
 T1<-melt(T1,value.name = "Turnover",variable.name = "Factor")
 one.test.T1<-aov(Turnover ~ Factor, data = T1)
@@ -88,7 +88,7 @@ my_vif1
 my_vif1[my_vif1>5]
 
 #Mid 
-fitted_bc2<-glm.cons(formula = Vis.bc2 ~bet.bc2+XP.bc2+XA.bc2, 
+fitted_bc2<-glm.cons(formula = Vis.bc2 ~bet.bc2+Enc.bc2+XA.bc2, 
                      data = tover,cons = 1)
 
 
@@ -101,7 +101,7 @@ my_vif2
 my_vif2[my_vif2>5]
 
 # Late
-fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+XP.bc3+XA.bc3 , 
+fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3 , 
                      data = tover,cons = 1,na.action = na.pass)
 
 
@@ -438,8 +438,8 @@ TukeyHSD(one.test.V)
 
 
 # Model comparison
-dep<-c("H2.1", "mod.1", "nes.1", "H2.2", "mod.2", "nes.2", "H2.3", 
-       "mod.3", "nes.3")
+dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3", 
+       "mod.c3", "nes.c3")
 
 comparison.table<-c()
 for(n in dep){
@@ -461,6 +461,9 @@ for(i in 1:nrow(comparison.table)){
   print(with(summary(structure.glm), 1 - deviance/null.deviance))
   print("----------------------------------------------------")
 }
+
+
+
 
 
 

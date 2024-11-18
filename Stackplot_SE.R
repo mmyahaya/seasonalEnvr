@@ -20,10 +20,13 @@ matplot(times,ForEffMatA, type = "l", lwd=2,lty ="solid" ,pch = 1, col = rep(1:N
 dev.copy(jpeg,"SE_Fullplot_US1.jpeg",width = 300, height = 225,units = "mm", res = 400)
 dev.off()
 #Steady
+
+
 par(mar = c(0.5, 4.5, 4.1, 2.0))
 matplot(times[(51*365*10+1):200001],X[(51*365*10+1):200001,1:M], type = "l",lwd=2,lty = "solid" , pch = 1, col=1:M,
         main=NA, 
         ylab = "Plant density", xlab = NA,xaxt="n",cex.lab=2.0,cex.axis=2.0)
+
 par(mar = c(4.1, 4.5, 1, 2.0))
 matplot(times[(51*365*10+1):200001],Fi[(51*365*10+1):200001,],lwd=2, type = "l",lty = "solid" , pch = 1, col=1:M, 
         main=NA, ylab = "Floral resource", xlab ="Time", cex.lab=2.0,cex.axis=2.0)
@@ -39,7 +42,7 @@ matplot(times[(51*365*10+1):200001],ForEffMatA[(51*365*10+1):200001,], type = "l
 
 
 
-dev.copy(jpeg,"SE_Steadyplot_US1_test.jpeg",width = 300, height = 300,units = "mm", res = 600)
+dev.copy(jpeg,"SE_Steadyplot_US1_test.tiff",width = 500, height = 200,units = "mm", res = 600)
 dev.off()
 
 #Growth season
@@ -60,7 +63,7 @@ matplot((1:nrow(P1))/10,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = 
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)", 
         cex.lab=2.0,cex.axis=2.0)
 
-dev.copy(jpeg,"SE_Growthplot_US01.jpeg",width = 300, height = 300,units = "mm", res = 600)
+dev.copy(jpeg,"SE_Growthplot_US01.tiff",width = 300, height = 300,units = "mm", res = 600)
 dev.off()
 
 
