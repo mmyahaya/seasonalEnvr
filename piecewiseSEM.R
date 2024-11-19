@@ -70,15 +70,16 @@ summary(models)
 
 # Address conflict using conserve = T
 summary(models, conserve = T)
-
+plot(models)
 model_plot<-plot(models, return=TRUE)
+
 
 model_plot$edges_df<-model_plot$edges_df %>% 
   filter(style=="solid") %>% 
   filter(abs(as.numeric(label))>0.1) %>% 
   mutate(color= ifelse(as.numeric(label)<0,"red",color))
 model_plot$nodes_df<-model_plot$nodes_df %>% 
-  filter(!(label %in% c("mean_rP","var_rP","var_rA","var_sA","var_uP")))
+  filter(id %in% c(model_plot$edges_df$from,model_plot$edges_df$to))
 
 # Render the graph
 render_graph(model_plot,layout =  "tree")
@@ -101,7 +102,7 @@ graph<-create_graph(
 
 
 plot(model_plot)
-graph
+plot(graph)
 
 
 
