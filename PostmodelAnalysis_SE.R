@@ -50,7 +50,7 @@ Tuk3
 write.csv2(Tuk3$Factor,"Tuk3.csv",row.names = T)
 
 # Model comparison
-maineffects.glm1 <-glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1+XA.bc1+Fi.bc1, 
+maineffects.glm1 <-glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1+XA.bc1+Fi.bc1,
                             data = tover,cons = 1,na.action = na.pass)
 mega.model.comparison1 <- dredge(maineffects.glm1)
 head(mega.model.comparison1)
@@ -58,14 +58,14 @@ as.matrix(mega.model.comparison1)->mmc1
 write.csv(mmc1,"mmc1.csv",row.names = F)
 
 
-maineffects.glm2 <-glm.cons(formula = Vis.bc2 ~bet.bc2+Enc.bc2+XP.bc2+XA.bc2+Fi.bc2, 
+maineffects.glm2 <-glm.cons(formula = Vis.bc2 ~bet.bc2+Enc.bc2+XP.bc2+XA.bc2+Fi.bc2,
                             data = tover,cons = 1,na.action = na.pass)
 mega.model.comparison2 <- dredge(maineffects.glm2)
 head(mega.model.comparison2)
 as.matrix(mega.model.comparison2)->mmc2
 write.csv(mmc2,"mmc2.csv",row.names = F)
 
-maineffects.glm3 <-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3+Fi.bc3, 
+maineffects.glm3 <-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3+Fi.bc3,
                             data = tover,cons = 1,na.action = na.pass)
 mega.model.comparison3 <- dredge(maineffects.glm3)
 head(mega.model.comparison3)
@@ -74,7 +74,7 @@ write.csv(mmc3,"mmc3.csv",row.names = F)
 # Early
 
 
-fitted_bc1<-glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1, 
+fitted_bc1<-glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1,
                data = tover,cons = 1,na.action = na.pass)
 
 
@@ -87,8 +87,8 @@ vif(fitted_bc1)->my_vif1
 my_vif1
 my_vif1[my_vif1>5]
 
-#Mid 
-fitted_bc2<-glm.cons(formula = Vis.bc2 ~bet.bc2+Enc.bc2+XA.bc2, 
+#Mid
+fitted_bc2<-glm.cons(formula = Vis.bc2 ~bet.bc2+Enc.bc2+XA.bc2,
                      data = tover,cons = 1)
 
 
@@ -101,7 +101,7 @@ my_vif2
 my_vif2[my_vif2>5]
 
 # Late
-fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3 , 
+fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3 ,
                      data = tover,cons = 1,na.action = na.pass)
 
 
@@ -160,7 +160,7 @@ stat.data<-data.frame("Phase"=c(rep("Early",5),rep("Mid",5),rep("Late",5)),
 stat.data$Phase <- factor(stat.data$Phase, levels = c("Early", "Mid","Late"))
 stat.data$Predictor<- factor(stat.data$Predictor, levels = c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"))
 stat.data<-na.omit(stat.data)
-Turnv.plot<-ggplot(stat.data, aes(fill=Predictor, y=Percentage, x=Phase )) + 
+Turnv.plot<-ggplot(stat.data, aes(fill=Predictor, y=Percentage, x=Phase )) +
   geom_bar(position="dodge", stat="identity")+ theme_classic()+
   theme(axis.text.x = element_text(size = 14),  # Adjust x-axis text size
         axis.text.y = element_text(size = 14),  # Adjust y-axis text size
@@ -182,7 +182,7 @@ ggsave("Turnv_His.tiff", plot =Turnv.plot ,
 #Plots
 layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
 par(mar = c(3,4.5,2,1.5))
-boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover", 
+boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover",
         main="Interaction turnover", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
@@ -190,32 +190,32 @@ boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turno
 par(mar = c(3,4.5,2,1.5))
 
 
-boxplot(H2.mat,col = c("grey","white","white"), boxwex = 0.5, ylab="Specialisation (H'2)", 
+boxplot(H2.mat,col = c("grey","white","white"), boxwex = 0.5, ylab="Specialisation (H'2)",
         main="Specialisation", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
 
-boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)", 
+boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)",
         main="Modularity", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
-boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)", 
+boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)",
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-# 
-# boxplot(tover[,7:12],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover", 
+#
+# boxplot(tover[,7:12],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover",
 #         main="Mid phase", names =c("Int.","FE","Enc.","Pl.","An.","Fl."),
 #         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
 # abline(v=c(1.5),lty=2)
-# 
-# boxplot(tover[,1:6],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover", 
+#
+# boxplot(tover[,1:6],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover",
 #         main="Early phase", names =c("Int.","FE","Enc.","Pl.","An.","Fl."),
 #         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
 # abline(v=c(1.5),lty=2)
-# 
-# boxplot(tover[,13:18],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover", 
+#
+# boxplot(tover[,13:18],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover",
 #         main="Late phase", names =c("Int.","FE","Enc.","Pl.","An.","Fl."),
 #         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
 # abline(v=c(1.5),lty=2)
@@ -231,15 +231,15 @@ library(jtools)
 
 effect_plot(fitted_bc1,pred = bet.bc1,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = "Interaction", x= "Foraging effort")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.bb1
 effect_plot(fitted_bc1,pred = Enc.bc1,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Encounter rate")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.be1
 effect_plot(fitted_bc1,pred = XP.bc1,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Plant density")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.bp1
 
 
@@ -247,33 +247,33 @@ effect_plot(fitted_bc1,pred = XP.bc1,interval = TRUE ,plot.points = TRUE,
 
 effect_plot(fitted_bc2,pred = bet.bc2,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = "Interaction", x= "Foraging effort")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.bb2
 effect_plot(fitted_bc2,pred = Enc.bc2,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Encounter rate")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.be2
 effect_plot(fitted_bc2,pred = XP.bc2,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Plant density")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.bp2
 effect_plot(fitted_bc2,pred = XA.bc2,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Animal density")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.ba2
 
 
 effect_plot(fitted_bc3,pred = bet.bc3,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = "Interaction", x= "Foraging effort")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.bb3
 effect_plot(fitted_bc3,pred = Enc.bc3,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Encounter rate")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.be3
 effect_plot(fitted_bc3,pred = XP.bc3,interval = TRUE ,plot.points = TRUE,
             jitter = 0.05) +  labs(y = NULL, x= "Plant density")+
-  theme(text = element_text(size=18),axis.text.x = element_blank(), 
+  theme(text = element_text(size=18),axis.text.x = element_blank(),
         axis.title.y = element_text(size = 20))->eff_plot.bp3
 
 
@@ -311,7 +311,9 @@ ggsave("eff.3.jpeg", plot =eff.plot.3 ,
        width = 16, height = 9, dpi = 600)
 #--------------------------------------------------
 
-customise<-c("Vis.bc1"="Int. Early","Vis.bc2"="Int. Mid","Vis.bc3"="Int. Late",
+customise<-c("Vis.bc1"="Int. Early",
+             "Vis.bc2"="Int. Mid",
+             "Vis.bc3"="Int. Late",
              "H2.1"="Specialisation (Early)",
              "H2.2"="Specialisation (Mid)",
              "H2.3"="Specialisation (Late)",
@@ -321,6 +323,17 @@ customise<-c("Vis.bc1"="Int. Early","Vis.bc2"="Int. Mid","Vis.bc3"="Int. Late",
              "nes.1"="Nestedness (Early)",
              "nes.2"="Nestedness (Mid)",
              "nes.3"="Nestedness (Late)",
+
+             "H2.c1"="c.Specialisation (Early)",
+             "H2.c2"="c.Specialisation (Mid)",
+             "H2.c3"="c.Specialisation (Late)",
+             "mod.c1"="c.Modularity (Early)",
+             "mod.c2"="c.Modularity (Mid)",
+             "mod.c3"="c.Modularity (Late)",
+             "nes.c1"="c.Nestedness (Early)",
+             "nes.c2"="c.Nestedness (Mid)",
+             "nes.c3"="c.Nestedness (Late)",
+
              "mean_rA"="M. Animal amplitude","mean_rP"="M. Plant amplitude",
              "mean_cP"="M. Plant denity dep.",
              "mean_w"="M. decay rate","mean_sP"="M. Plant BP",
@@ -331,13 +344,13 @@ customise<-c("Vis.bc1"="Int. Early","Vis.bc2"="Int. Mid","Vis.bc3"="Int. Late",
              "var_sigmaA"="V. Animal conversion eff.","var_a"="V. floral resource","var_sP"="V. Plant BP",
              "var_uP"="V. Plant SL","var_uA"="V. Animal SL",
               "bet.bc1"="FE. (Early)", "Enc.bc1"="Enc. (Early)", "XP.bc1"="Pl. (Early)",
-             "XA.bc1"="An. (Early)", "Fi.bc1"="Fl. (Early)", 
+             "XA.bc1"="An. (Early)", "Fi.bc1"="Fl. (Early)",
              "bet.bc2"="FE. (Mid)", "Enc.bc2"="Enc. (Mid)", "XP.bc2"="Pl. (Mid)",
-             "XA.bc2"="An. (Mid)", "Fi.bc2"="Fl. (Mid)", 
+             "XA.bc2"="An. (Mid)", "Fi.bc2"="Fl. (Mid)",
              "bet.bc3"="FE. (Late)", "Enc.bc3"="Enc. (Late)", "XP.bc3"="Pl. (Late)"
              , "XA.bc3"="An. (Late)", "Fi.bc3"="Fl. (Late)")
-seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP", 
-              "mean_uA", "var_rP", "var_rA", "var_sP", "var_sA", "var_uP", 
+seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP",
+              "mean_uA", "var_rP", "var_rA", "var_sP", "var_sA", "var_uP",
               "var_uA")
 
 
@@ -346,7 +359,7 @@ cor_dat<-tover[c("Vis.bc1","Vis.bc2","Vis.bc3",seasonParm)]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
 ggcorrplot(corr[-c(4,7,10,11,13:15),1:3],
-           hc.order = FALSE,lab_size = 8, tl.cex =18, 
+           hc.order = FALSE,lab_size = 8, tl.cex =18,
            lab = TRUE,sig.level = 0.001,p.mat = p.mat[-c(4,7,10,11,13:15),1:3], insig = "blank")+
   scale_y_discrete(labels = customise)+
   scale_x_discrete(labels = customise)->USggfull
@@ -361,8 +374,8 @@ c( "mean_rP", "mean_sP", "mean_uP", "mean_uA", "var_sP")
 
 
 
-visdat::vis_cor(tover[,c(names(tover)[1:27])]) + 
-  geom_text(aes(label = round(value,2)), 
+visdat::vis_cor(tover[,c(names(tover)[1:27])]) +
+  geom_text(aes(label = round(value,2)),
                                              color = "black", size = 3)+
   scale_y_discrete(labels = customise)+
   scale_x_discrete(labels = customise,position = "top")
@@ -374,18 +387,29 @@ USggsigplot
 
 #### Network structures
 #c(names(tover)[19:27],seasonParm)
-cor_dat<-tover[,c(names(tover)[1:27])]
+
+c.names<-c("Vis.bc1", "bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
+           "H2.c1", "mod.c1", "nes.c1", "Vis.bc2", "bet.bc2", "Enc.bc2",
+           "XP.bc2", "XA.bc2", "Fi.bc2", "H2.c2", "mod.c2", "nes.c2", "Vis.bc3",
+           "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3", "H2.c3",
+           "mod.c3", "nes.c3")
+
+
+struct.names<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2","H2.c3",
+                "mod.c3", "nes.c3")
+cor_dat<-tover[,c.names[10:18]]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
-ggcorrplot((corr[,19:27]), hc.order = FALSE,
-           lab = TRUE, sig.level = 0.001,pch = 8,tl.cex = 18, p.mat = (p.mat[,19:27]),insig = c("blank"))+
+ggcorrplot((corr[!(rownames(corr) %in% struct.names[4:6]),struct.names[4:6]]), hc.order = FALSE,
+           lab = TRUE, sig.level = 0.001,pch = 8,tl.cex = 18,
+           p.mat = (p.mat[!(rownames(corr) %in% struct.names[4:6]),struct.names[4:6]]),insig = c("blank"))+
   scale_y_discrete(labels = customise)+
   scale_x_discrete(labels = customise)->ggcorplot
 ggcorplot
 ggsave("ggcor_Net&Turn.tiff", plot =ggcorplot,
        width = 16, height = 9, dpi = 600)
 
-visdat::vis_cor(tover[c(1:27)]) + geom_text(aes(label = round(value,2)), 
+visdat::vis_cor(tover[c(1:27)]) + geom_text(aes(label = round(value,2)),
                                              color = "black", size = 3)
 
 # H2 test
@@ -415,22 +439,79 @@ TukeyHSD(one.test.V)
 
 
 
-# boxplot(H2.mat,col = c("grey"), boxwex = 0.5, ylab="Specialisation (H'2)", 
+
+
+# H2 test
+H2.cmat<-data.frame(tover$H2.c1,tover$H2.c2,tover$H2.c3)
+names(H2.cmat)<-c("Early","Mid","Late")
+
+one.test.V<-aov(Turnover ~ Period, data = melt(H2.cmat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+# mod test
+mod.cmat<-data.frame(tover$mod.c1,tover$mod.c2,tover$mod.c3)
+names(mod.cmat)<-c("Early","Mid","Late")
+one.test.V<-aov(Turnover ~ Period, data = melt(mod.cmat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+# nes test
+nes.cmat<-data.frame(tover$nes.c1,tover$nes.c2,tover$nes.c3)
+names(nes.cmat)<-c("Early","Mid","Late")
+one.test.V<-aov(Turnover ~ Period, data = melt(nes.cmat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+
+
+
+#Plots
+layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
+par(mar = c(3,4.5,2,1.5))
+boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover",
+        main="Interaction turnover", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+
+
+par(mar = c(3,4.5,2,1.5))
+
+
+boxplot(H2.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab="del Specialisation (H'2)",
+        main="Specialisation", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+
+
+
+boxplot(mod.cmat,col = c("grey"), boxwex = 0.5, ylab=" del Modularity (Q)",
+        main="Modularity", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+
+
+boxplot(nes.cmat/100,col = c("grey"), boxwex = 0.5, ylab="del Nestedness (WNODA)",
+        main="Nestedness", names =c("Early","Mid", "Late"),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+
+
+# boxplot(H2.mat,col = c("grey"), boxwex = 0.5, ylab="Specialisation (H'2)",
 #         main="Specialisation", names =c("Early","Mid", "Late"),
 #         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-# 
-# 
-# 
-# boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)", 
+#
+#
+#
+# boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)",
 #         main="Modularity", names =c("Early","Mid", "Late"),
 #         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-# 
-# 
-# boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)", 
+#
+#
+# boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)",
 #         main="Nestedness", names =c("Early","Mid", "Late"),
 #         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
-# 
+#
 # dev.copy(jpeg,"box_Net.jpeg",width = 300, height = 300,units = "mm", res = 600)
 # dev.off()
 
@@ -438,14 +519,14 @@ TukeyHSD(one.test.V)
 
 
 # Model comparison
-dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3", 
+dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3",
        "mod.c3", "nes.c3")
 
 comparison.table<-c()
 for(n in dep){
-  glm.com <-glm(formula = reformulate(seasonParm,n), 
+  glm.com <-glm(formula = reformulate(seasonParm,n),
                 data = tover,na.action = na.pass)
-  
+
   comparison <- dredge(glm.com)
   comparison[1,2:13]->comparison
   rownames(comparison)<-n
