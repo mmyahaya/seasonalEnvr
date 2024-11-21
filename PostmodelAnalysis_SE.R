@@ -30,7 +30,7 @@ TukeyHSD(one.test.T1)->Tuk1
 Tuk1
 write.csv(Tuk1$Factor,"Tuk1.csv",row.names = T)
 #Mid
-T2<-tover[,8:12]
+T2<-tover[,c("bet.bc2", "Enc.bc2" ,"XP.bc2" , "XA.bc2" , "Fi.bc2" )]
 names(T2)<-c("FE","Enc.","Pl.","An.","Fl.")
 T2<-melt(T2,value.name = "Turnover",variable.name = "Factor")
 one.test.T2<-aov(Turnover ~ Factor, data = T2)
@@ -40,7 +40,7 @@ Tuk2
 write.csv(Tuk2$Factor,"Tuk2.csv",row.names = T)
 
 #Late
-T3<-tover[,14:18]
+T3<-tover[,c("bet.bc3", "Enc.bc3" ,"XP.bc3" , "XA.bc3" , "Fi.bc3" )]
 names(T3)<-c("FE","Enc.","Pl.","An.","Fl.")
 T3<-melt(T3,value.name = "Turnover",variable.name = "Factor")
 one.test.T3<-aov(Turnover ~ Factor, data = T3)
@@ -177,12 +177,36 @@ ggsave("Turnv_His.tiff", plot =Turnv.plot ,
 
 #####
 
+# H2 test
+H2.mat<-data.frame(tover$H2.1,tover$H2.2,tover$H2.3)
+names(H2.mat)<-c("Early","Mid","Late")
+
+one.test.V<-aov(Turnover ~ Period, data = melt(H2.mat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+# mod test
+mod.mat<-data.frame(tover$mod.1,tover$mod.2,tover$mod.3)
+names(mod.mat)<-c("Early","Mid","Late")
+one.test.V<-aov(Turnover ~ Period, data = melt(mod.mat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
+
+# nes test
+nes.mat<-data.frame(tover$nes.1,tover$nes.2,tover$nes.3)
+names(nes.mat)<-c("Early","Mid","Late")
+one.test.V<-aov(Turnover ~ Period, data = melt(nes.mat,value.name = "Turnover",
+                                               variable.name = "Period"))
+summary(one.test.V)
+TukeyHSD(one.test.V)
 
 #####
 #Plots
 layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
 par(mar = c(3,4.5,2,1.5))
-boxplot(tover[,c(1,7,13)],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover",
+boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover",
         main="Interaction turnover", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
@@ -204,21 +228,6 @@ boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)",
 boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)",
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-#
-# boxplot(tover[,7:12],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover",
-#         main="Mid phase", names =c("Int.","FE","Enc.","Pl.","An.","Fl."),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
-# abline(v=c(1.5),lty=2)
-#
-# boxplot(tover[,1:6],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover",
-#         main="Early phase", names =c("Int.","FE","Enc.","Pl.","An.","Fl."),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
-# abline(v=c(1.5),lty=2)
-#
-# boxplot(tover[,13:18],col = c("grey",rep("white",5)), boxwex = 0.5, ylab="Bray-Curtis turnover",
-#         main="Late phase", names =c("Int.","FE","Enc.","Pl.","An.","Fl."),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
-# abline(v=c(1.5),lty=2)
 
 
 dev.copy(jpeg,"Turn&struc.tiff",width = 300, height = 300,units = "mm", res = 600)
