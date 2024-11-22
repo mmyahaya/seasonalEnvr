@@ -114,44 +114,30 @@ vif(fitted_bc3)->my_vif3
 my_vif3
 my_vif3[my_vif3>5]
 
-
+disjoint<-function(fit,res){
+  comm.analysis<-data.frame("Var"=numeric(),"Perc"=numeric())
+  pred<-variable.names(fit)[-1]
+  Total.glm<-with(summary(fit), 1 - deviance/null.deviance)
+  for(n in 1:length(pred)){
+    f<-reformulate(pred[-n],res)
+    var.name<-pred[n]
+    var.name <- substr(var.name, 1, nchar(var.name) - 1)
+    g.l.m<-glm.cons(formula = f,
+            data = tover,
+            cons = 1,
+            na.action = na.pass)
+    perc<-(Total.glm-with(summary(g.l.m), 1 - deviance/null.deviance))/Total.glm
+    comm.analysis<-rbind(comm.analysis,data.frame("Var"=var.name,"Perc"=perc))
+  }
+  comm.analysis
+}
 
 # Disjoint contribution- Early period
-comm.analysis.bc1<-data.frame("Var"=numeric(),"Perc.bc1"=numeric())
-resp_bc1_name<-variable.names(fitted_bc1)[-1]
-with(summary(fitted_bc1), 1 - deviance/null.deviance)->Total.glm.bc1
-res="Vis.bc1"
-for(n in 1:length(resp_bc1_name)){
-  f<-reformulate(resp_bc1_name[-n],res)
-  var.name<-resp_bc1_name[n]
-  g.l.m1<-glm(formula = f, data=tover, family = quasibinomial(link = 'logit'))
-  perc<-(Total.glm.bc1-with(summary(g.l.m1), 1 - deviance/null.deviance))/Total.glm.bc1
-  comm.analysis.bc1<-rbind(comm.analysis.bc1,data.frame("Var"=var.name,"Perc.bc1"=perc))
-}
+comm.analysis.bc1<-disjoint(fitted_bc1,"Vis.bc1")
 # Mid
-comm.analysis.bc2<-data.frame("Var"=numeric(),"Perc.bc2"=numeric())
-resp_bc2_name<-variable.names(fitted_bc2)[-1]
-with(summary(fitted_bc2), 1 - deviance/null.deviance)->Total.glm.bc2
-res="Vis.bc2"
-for(n in 1:length(resp_bc2_name)){
-  f<-reformulate(resp_bc2_name[-n],res)
-  var.name<-resp_bc2_name[n]
-  g.l.m2<-glm(formula = f, data=tover, family = quasibinomial(link = 'logit'))
-  perc<-(Total.glm.bc2-with(summary(g.l.m2), 1 - deviance/null.deviance))/Total.glm.bc2
-  comm.analysis.bc2<-rbind(comm.analysis.bc2,data.frame("Var"=var.name,"Perc.bc2"=perc))
-}
+comm.analysis.bc2<-disjoint(fitted_bc2,"Vis.bc2")
 #Late
-comm.analysis.bc3<-data.frame("Var"=numeric(),"Perc.bc3"=numeric())
-resp_bc3_name<-variable.names(fitted_bc3)[-1]
-with(summary(fitted_bc3), 1 - deviance/null.deviance)->Total.glm.bc3
-res="Vis.bc3"
-for(n in 1:length(resp_bc3_name)){
-  f<-reformulate(resp_bc3_name[-n],res)
-  var.name<-resp_bc3_name[n]
-  g.l.m3<-glm(formula = f, data=tover, family = quasibinomial(link = 'logit'))
-  perc<-(Total.glm.bc3-with(summary(g.l.m3), 1 - deviance/null.deviance))/Total.glm.bc3
-  comm.analysis.bc3<-rbind(comm.analysis.bc3,data.frame("Var"=var.name,"Perc.bc3"=perc))
-}
+comm.analysis.bc3<-disjoint(fitted_bc3,"Vis.bc3")
 
 stat.data<-data.frame("Phase"=c(rep("Early",5),rep("Mid",5),rep("Late",5)),
                       "Predictor"=c(rep(c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"),3)),
@@ -564,16 +550,16 @@ pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
       "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2",
        "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3" )
 comparison.table<-c()
-for(n in dep[1:3]){
+for(n in dep[7:9]){
   if(n %in% dep[1:3] ){
-    glm.com <-glm(formula = reformulate(pre[1:5],n),
-                  data = tover,na.action = na.pass)
+    glm.com <-glm.cons(formula = reformulate(pre[1:5],n),
+                  data = tover,cons = 1,na.action = na.pass)
   } else if(n %in% dep[4:6]){
-    glm.com <-glm(formula = reformulate(pre[6:10],n),
-                  data = tover,na.action = na.pass)
+    glm.com <-glm.cons(formula = reformulate(pre[6:10],n),
+                  data = tover,cons = 1,na.action = na.pass)
   } else {
-    glm.com <-glm(formula = reformulate(pre[11:15],n),
-                  data = tover,na.action = na.pass)
+    glm.com <-glm.cons(formula = reformulate(pre[11:15],n),
+                  data = tover,cons = 1,na.action = na.pass)
   }
 
   comparison <- dredge(glm.com)
@@ -583,8 +569,8 @@ for(n in dep[1:3]){
 }
 # write.csv(comparison.table,"com_table.csv",row.names = T)
 for(i in 1:nrow(comparison.table)){
-  structure.glm<-glm(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
-                                           rownames(comparison.table[i,])),
+  structure.glm<-glm.cons(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
+                                           rownames(comparison.table[i,])),cons = 1,
                      data = tover, na.action = na.pass)
   print(rownames(comparison.table[i,]))
   print(summary.glm(structure.glm))
