@@ -557,4 +557,40 @@ for(i in 1:nrow(comparison.table)){
 
 
 
-
+# Model comparison
+dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3",
+       "mod.c3", "nes.c3")
+pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
+      "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2", 
+       "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3", )
+comparison.table<-c()
+for(n in dep){
+  if(n %in% dep[1:3] ){
+    glm.com <-glm(formula = reformulate(pre[1:5],n),
+                  data = tover,na.action = na.pass)
+  } else if(n %in% dep[4:6]){
+    glm.com <-glm(formula = reformulate(pre[6:10],n),
+                  data = tover,na.action = na.pass)
+  } else {
+    glm.com <-glm(formula = reformulate(pre[11:15],n),
+                  data = tover,na.action = na.pass)
+  }
+  
+  glm.com <-glm(formula = reformulate(pre,n),
+                data = tover,na.action = na.pass)
+  
+  comparison <- dredge(glm.com)
+  comparison[1,2:13]->comparison
+  rownames(comparison)<-n
+  comparison.table<-rbind(comparison.table,comparison)
+}
+# write.csv(comparison.table,"com_table.csv",row.names = T)
+for(i in 1:nrow(comparison.table)){
+  structure.glm<-glm(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
+                                           rownames(comparison.table[i,])),
+                     data = tover, na.action = na.pass)
+  print(rownames(comparison.table[i,]))
+  print(summary.glm(structure.glm))
+  print(with(summary(structure.glm), 1 - deviance/null.deviance))
+  print("----------------------------------------------------")
+}
