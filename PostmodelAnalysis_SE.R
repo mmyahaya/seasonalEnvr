@@ -406,12 +406,12 @@ c.names<-c("Vis.bc1", "bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
 
 struct.names<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2","H2.c3",
                 "mod.c3", "nes.c3")
-cor_dat<-tover[,c.names[10:18]]
+cor_dat<-tover[,c.names[19:27]]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
-ggcorrplot((corr[!(rownames(corr) %in% struct.names[4:6]),struct.names[4:6]]), hc.order = FALSE,
+ggcorrplot((corr[!(rownames(corr) %in% struct.names[7:9]),struct.names[7:9]]), hc.order = FALSE,
            lab = TRUE, sig.level = 0.001,pch = 8,tl.cex = 18,
-           p.mat = (p.mat[!(rownames(corr) %in% struct.names[4:6]),struct.names[4:6]]),insig = c("blank"))+
+           p.mat = (p.mat[!(rownames(corr) %in% struct.names[7:9]),struct.names[7:9]]),insig = c("blank"))+
   scale_y_discrete(labels = customise)+
   scale_x_discrete(labels = customise)->ggcorplot
 ggcorplot
@@ -489,18 +489,19 @@ boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, 
 par(mar = c(3,4.5,2,1.5))
 
 
-boxplot(H2.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab="del Specialisation (H'2)",
+boxplot(H2.cmat,col = c("grey"), boxwex = 0.5,
+        ylab=(TeX("$\\Delta H'_2$")),
         main="Specialisation", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
 
-boxplot(mod.cmat,col = c("grey"), boxwex = 0.5, ylab=" del Modularity (Q)",
+boxplot(mod.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab=(TeX("$\\Delta Q$")),
         main="Modularity", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
-boxplot(nes.cmat/100,col = c("grey"), boxwex = 0.5, ylab="del Nestedness (WNODA)",
+boxplot(nes.cmat/100,col = c("grey"), boxwex = 0.5, ylab=(TeX("$\\Delta N$")),
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
