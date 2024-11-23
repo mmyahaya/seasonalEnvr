@@ -114,6 +114,20 @@ vif(fitted_bc3)->my_vif3
 my_vif3
 my_vif3[my_vif3>5]
 
+
+
+fitted_H2.c1<-glm.cons(formula = H2.c1 ~bet.bc1+XP.bc1,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_H2.c1), 1 - deviance/null.deviance)
+
+fitted_H2.c2<-glm.cons(formula = H2.c2 ~bet.bc1+XP.bc1,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_H2.c2), 1 - deviance/null.deviance)
+
+
+
 disjoint<-function(fit,res){
   comm.analysis<-data.frame("Var"=numeric(),"Perc"=numeric())
   pred<-variable.names(fit)[-1]
@@ -139,10 +153,25 @@ comm.analysis.bc2<-disjoint(fitted_bc2,"Vis.bc2")
 #Late
 comm.analysis.bc3<-disjoint(fitted_bc3,"Vis.bc3")
 
-stat.data<-data.frame("Phase"=c(rep("Early",5),rep("Mid",5),rep("Late",5)),
-                      "Predictor"=c(rep(c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"),3)),
-                      "Percentage"=c(comm.analysis.bc1$Perc.bc1,NA,NA,comm.analysis.bc2[1,2],NA,comm.analysis.bc2[2:3,2],NA,
-                                     comm.analysis.bc3[1,2],NA,comm.analysis.bc3[2:3,2],NA)*100)
+comm.analysis<-full_join(comm.analysis.bc1,comm.analysis.bc2,
+                         by = join_by(Var)) %>% 
+  full_join(comm.analysis.bc3, by = join_by(Var))
+names(comm.analysis)<-c("Predictor","Early","Mid","Late")
+comm.analysis<-comm.analysis %>% 
+  mutate(Predictor=case_when(
+    Predictor=="bet.bc" ~ "Foraging effort",
+    Predictor=="Enc.bc" ~ "Encounter rate",
+    Predictor=="XP.bc" ~ "Plant density",
+    Predictor=="XA.bc" ~ "Animal density",
+    Predictor=="Fi.bc" ~ "Floral resource",
+    TRUE ~ NA 
+  ))
+
+# df %>% gather("key", "value", x, y, z) is equivalent 
+# to df %>% pivot_longer(c(x, y, z), names_to = "key", values_to = "value")
+stat.data<-comm.analysis %>% 
+  pivot_longer(c(Early,Mid,Late),names_to = "Phase", values_to = "Percentage")
+
 stat.data$Phase <- factor(stat.data$Phase, levels = c("Early", "Mid","Late"))
 stat.data$Predictor<- factor(stat.data$Predictor, levels = c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"))
 stat.data<-na.omit(stat.data)
@@ -550,7 +579,7 @@ pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
       "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2",
        "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3" )
 comparison.table<-c()
-for(n in dep[7:9]){
+for(n in dep[1:3]){
   if(n %in% dep[1:3] ){
     glm.com <-glm.cons(formula = reformulate(pre[1:5],n),
                   data = tover,cons = 1,na.action = na.pass)
