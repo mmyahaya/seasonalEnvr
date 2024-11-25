@@ -121,12 +121,16 @@ fitted_H2.c1<-glm.cons(formula = H2.c1 ~bet.bc1+XP.bc1,
 
 with(summary(fitted_H2.c1), 1 - deviance/null.deviance)
 
-fitted_H2.c2<-glm.cons(formula = H2.c2 ~bet.bc1+XP.bc1,
+fitted_H2.c2<-glm.cons(formula = H2.c2 ~bet.bc2,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_H2.c2), 1 - deviance/null.deviance)
 
 
+fitted_H2.c3<-glm.cons(formula = H2.c3 ~bet.bc3+Enc.bc3,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_H2.c3), 1 - deviance/null.deviance)
 
 disjoint<-function(fit,res){
   comm.analysis<-data.frame("Var"=numeric(),"Perc"=numeric())
@@ -152,6 +156,12 @@ comm.analysis.bc1<-disjoint(fitted_bc1,"Vis.bc1")
 comm.analysis.bc2<-disjoint(fitted_bc2,"Vis.bc2")
 #Late
 comm.analysis.bc3<-disjoint(fitted_bc3,"Vis.bc3")
+
+comm.analysis.H2.1<-disjoint(fitted_H2.c1,"H2.c1")
+
+comm.analysis.H2.2<-disjoint(fitted_H2.c2,"H2.c2")
+
+comm.analysis.H2.2<-disjoint(fitted_H2.c3,"H2.c3")
 
 comm.analysis<-full_join(comm.analysis.bc1,comm.analysis.bc2,
                          by = join_by(Var)) %>% 
@@ -579,7 +589,7 @@ pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
       "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2",
        "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3" )
 comparison.table<-c()
-for(n in dep[1:3]){
+for(n in dep[4:6]){
   if(n %in% dep[1:3] ){
     glm.com <-glm.cons(formula = reformulate(pre[1:5],n),
                   data = tover,cons = 1,na.action = na.pass)
