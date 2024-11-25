@@ -164,22 +164,22 @@ comm.analysis.H2.2<-disjoint(fitted_H2.c2,"H2.c2")
 comm.analysis.H2.2<-disjoint(fitted_H2.c3,"H2.c3")
 
 comm.analysis<-full_join(comm.analysis.bc1,comm.analysis.bc2,
-                         by = join_by(Var)) %>% 
+                         by = join_by(Var)) %>%
   full_join(comm.analysis.bc3, by = join_by(Var))
 names(comm.analysis)<-c("Predictor","Early","Mid","Late")
-comm.analysis<-comm.analysis %>% 
+comm.analysis<-comm.analysis %>%
   mutate(Predictor=case_when(
     Predictor=="bet.bc" ~ "Foraging effort",
     Predictor=="Enc.bc" ~ "Encounter rate",
     Predictor=="XP.bc" ~ "Plant density",
     Predictor=="XA.bc" ~ "Animal density",
     Predictor=="Fi.bc" ~ "Floral resource",
-    TRUE ~ NA 
+    TRUE ~ NA
   ))
 
-# df %>% gather("key", "value", x, y, z) is equivalent 
+# df %>% gather("key", "value", x, y, z) is equivalent
 # to df %>% pivot_longer(c(x, y, z), names_to = "key", values_to = "value")
-stat.data<-comm.analysis %>% 
+stat.data<-comm.analysis %>%
   pivot_longer(c(Early,Mid,Late),names_to = "Phase", values_to = "Percentage")
 
 stat.data$Phase <- factor(stat.data$Phase, levels = c("Early", "Mid","Late"))
@@ -589,23 +589,33 @@ pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
       "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2",
        "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3" )
 comparison.table<-c()
-for(n in dep[4:6]){
-  if(n %in% dep[1:3] ){
-    glm.com <-glm.cons(formula = reformulate(pre[1:5],n),
-                  data = tover,cons = 1,na.action = na.pass)
-  } else if(n %in% dep[4:6]){
-    glm.com <-glm.cons(formula = reformulate(pre[6:10],n),
-                  data = tover,cons = 1,na.action = na.pass)
-  } else {
-    glm.com <-glm.cons(formula = reformulate(pre[11:15],n),
-                  data = tover,cons = 1,na.action = na.pass)
+dep.list<-list(dep[1:3],dep[4:6],dep[7:9])
+comparison.list<-list()
+for(i in 1:3){
+  for(n in dep.list[[i]]){
+    if(n %in% dep.list[[1]] ){
+      glm.com <-glm.cons(formula = reformulate(pre[1:5],n),
+                         data = tover,cons = 1,na.action = na.pass)
+    } else if(n %in% dep.list[[2]]){
+      glm.com <-glm.cons(formula = reformulate(pre[6:10],n),
+                         data = tover,cons = 1,na.action = na.pass)
+    } else {
+      glm.com <-glm.cons(formula = reformulate(pre[11:15],n),
+                         data = tover,cons = 1,na.action = na.pass)
+    }
+    comparison <- dredge(glm.com)
+    comparison <- comparison[1,2:6]
+    rownames(comparison)<-n
+    comparison.table<-rbind(comparison.table,comparison)
   }
 
-  comparison <- dredge(glm.com)
-  comparison <- comparison[1,2:6]
-  rownames(comparison)<-n
-  comparison.table<-rbind(comparison.table,comparison)
+  comparison.list[[i]]<-comparison.table
+  comparison.table<-c()
 }
+
+comparison.list
+
+
 # write.csv(comparison.table,"com_table.csv",row.names = T)
 for(i in 1:nrow(comparison.table)){
   structure.glm<-glm.cons(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
