@@ -11,7 +11,11 @@ library(ggcorrplot)
 
 tover<-Net_with_structure2
 tover<-na.omit(tover)
-tover<-tover[1:1500,]
+#tover<-tover[1:1500,]
+
+tover<- tover %>% 
+  mutate(across(starts_with("nes"), ~ . / 100))
+
 Vis.mat<-tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")]
 names(Vis.mat)<-c("Early","Mid","Late")
 
@@ -131,6 +135,40 @@ fitted_H2.c3<-glm.cons(formula = H2.c3 ~bet.bc3+Enc.bc3,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_H2.c3), 1 - deviance/null.deviance)
+
+#Mod
+
+fitted_mod.c1<-glm.cons(formula = mod.c1 ~bet.bc1+XP.bc1,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_mod.c1), 1 - deviance/null.deviance)
+
+fitted_mod.c2<-glm.cons(formula = mod.c2 ~bet.bc2,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_mod.c2), 1 - deviance/null.deviance)
+
+fitted_mod.c3<-glm.cons(formula = mod.c3 ~XP.bc3,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_mod.c3), 1 - deviance/null.deviance)
+
+# Nes
+fitted_nes.c1<-glm.cons(formula = nes.c1 ~bet.bc1+XA.bc1+Fi.bc1,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_nes.c1), 1 - deviance/null.deviance)
+
+
+fitted_nes.c2<-glm.cons(formula = nes.c2 ~XA.bc2+Fi.bc2,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_nes.c2), 1 - deviance/null.deviance)
+
+fitted_nes.c3<-glm.cons(formula = nes.c3 ~bet.bc3+XP.bc3,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_nes.c3), 1 - deviance/null.deviance)
 
 disjoint<-function(fit,res){
   comm.analysis<-data.frame("Var"=numeric(),"Perc"=numeric())
@@ -626,3 +664,10 @@ for(i in 1:nrow(comparison.table)){
   print(with(summary(structure.glm), 1 - deviance/null.deviance))
   print("----------------------------------------------------")
 }
+
+
+
+
+
+
+
