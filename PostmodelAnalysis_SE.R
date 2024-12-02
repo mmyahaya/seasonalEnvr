@@ -4,6 +4,8 @@ library(zetadiv)
 library(ggplot2)
 library(MuMIn)
 library(ggcorrplot)
+library(tidyverse)
+library(latex2exp)
 
 
 
@@ -13,7 +15,7 @@ tover<-Net_with_structure2
 tover<-na.omit(tover)
 #tover<-tover[1:1500,]
 
-tover<- tover %>% 
+tover<- tover %>%
   mutate(across(starts_with("nes"), ~ . / 100))
 
 Vis.mat<-tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")]
@@ -105,7 +107,7 @@ my_vif2
 my_vif2[my_vif2>5]
 
 # Late
-fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3 ,
+fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3,
                      data = tover,cons = 1,na.action = na.pass)
 
 
@@ -564,29 +566,14 @@ boxplot(mod.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab=(TeX("$\\De
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
-boxplot(nes.cmat/100,col = c("grey"), boxwex = 0.5, ylab=(TeX("$\\Delta N$")),
+boxplot(nes.cmat,col = c("grey"), boxwex = 0.5, ylab=(TeX("$\\Delta N$")),
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
-# boxplot(H2.mat,col = c("grey"), boxwex = 0.5, ylab="Specialisation (H'2)",
-#         main="Specialisation", names =c("Early","Mid", "Late"),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-#
-#
-#
-# boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)",
-#         main="Modularity", names =c("Early","Mid", "Late"),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-#
-#
-# boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)",
-#         main="Nestedness", names =c("Early","Mid", "Late"),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
-#
-# dev.copy(jpeg,"box_Net.jpeg",width = 300, height = 300,units = "mm", res = 600)
-# dev.off()
+dev.copy(jpeg,"box_Net.tiff",width = 300, height = 300,units = "mm", res = 600)
+dev.off()
 
 
 
@@ -615,10 +602,6 @@ for(i in 1:nrow(comparison.table)){
   print(with(summary(structure.glm), 1 - deviance/null.deviance))
   print("----------------------------------------------------")
 }
-
-
-
-
 
 # Model comparison
 dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3",
