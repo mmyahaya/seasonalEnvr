@@ -367,17 +367,29 @@ seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP",
 cor_dat<-tover[c("Vis.bc1","Vis.bc2","Vis.bc3",seasonParm)]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
-ggcorrplot(corr[-c(4,7,10,11,13:15),1:3],
+corr<-corr[-c(4,5,7,10,11,13,14),1:3] %>%
+  as.data.frame() %>%
+  select(Vis.bc3,Vis.bc2,Vis.bc1) %>%
+  as.matrix()
+
+p.mat<-p.mat[-c(4,5,7,10,11,13,14),1:3] %>%
+  as.data.frame() %>%
+  select(Vis.bc3,Vis.bc2,Vis.bc1) %>%
+  as.matrix()
+
+
+
+ggcorrplot(corr,
            hc.order = FALSE,lab_size = 8, tl.cex =18,
-           lab = TRUE,sig.level = 0.001,p.mat = p.mat[-c(4,7,10,11,13:15),1:3], insig = "blank")+
+           lab = TRUE,sig.level = 0.001,p.mat = p.mat, insig = "blank")+
   scale_y_discrete(labels = customise)+
   scale_x_discrete(labels = customise)->USggfull
 USggfull
-ggsave("Int&parmgg.tiff", plot =USggfull ,
+ ggsave("Int&parm.tiff", plot =USggfull ,
        width = 12, height = 7, dpi = 600)
 
 
-corr[rownames()]
+
 dput(rownames(corr))
 c( "mean_rP", "mean_sP", "mean_uP", "mean_uA", "var_sP")
 
@@ -560,7 +572,7 @@ for(i in 1:nrow(comparison.table)){
 dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3",
        "mod.c3", "nes.c3")
 pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
-      "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2", 
+      "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2",
        "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3", )
 comparison.table<-c()
 for(n in dep){
@@ -574,10 +586,10 @@ for(n in dep){
     glm.com <-glm(formula = reformulate(pre[11:15],n),
                   data = tover,na.action = na.pass)
   }
-  
+
   glm.com <-glm(formula = reformulate(pre,n),
                 data = tover,na.action = na.pass)
-  
+
   comparison <- dredge(glm.com)
   comparison[1,2:13]->comparison
   rownames(comparison)<-n
