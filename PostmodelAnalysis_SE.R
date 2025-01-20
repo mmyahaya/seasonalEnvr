@@ -4,6 +4,8 @@ library(zetadiv)
 library(ggplot2)
 library(MuMIn)
 library(ggcorrplot)
+library(tidyverse)
+library(latex2exp)
 
 
 
@@ -11,7 +13,11 @@ library(ggcorrplot)
 
 tover<-Net_with_structure2
 tover<-na.omit(tover)
-tover<-tover[1:1500,]
+#tover<-tover[1:1500,]
+
+tover<- tover %>%
+  mutate(across(starts_with("nes"), ~ . / 100))
+
 Vis.mat<-tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")]
 names(Vis.mat)<-c("Early","Mid","Late")
 
@@ -101,7 +107,7 @@ my_vif2
 my_vif2[my_vif2>5]
 
 # Late
-fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3+XA.bc3 ,
+fitted_bc3<-glm.cons(formula = Vis.bc3 ~bet.bc3+Enc.bc3+XP.bc3,
                      data = tover,cons = 1,na.action = na.pass)
 
 
@@ -116,47 +122,106 @@ my_vif3[my_vif3>5]
 
 
 
-# Disjoint contribution- Early period
-comm.analysis.bc1<-data.frame("Var"=numeric(),"Perc.bc1"=numeric())
-resp_bc1_name<-variable.names(fitted_bc1)[-1]
-with(summary(fitted_bc1), 1 - deviance/null.deviance)->Total.glm.bc1
-res="Vis.bc1"
-for(n in 1:length(resp_bc1_name)){
-  f<-reformulate(resp_bc1_name[-n],res)
-  var.name<-resp_bc1_name[n]
-  g.l.m1<-glm(formula = f, data=tover, family = quasibinomial(link = 'logit'))
-  perc<-(Total.glm.bc1-with(summary(g.l.m1), 1 - deviance/null.deviance))/Total.glm.bc1
-  comm.analysis.bc1<-rbind(comm.analysis.bc1,data.frame("Var"=var.name,"Perc.bc1"=perc))
-}
-# Mid
-comm.analysis.bc2<-data.frame("Var"=numeric(),"Perc.bc2"=numeric())
-resp_bc2_name<-variable.names(fitted_bc2)[-1]
-with(summary(fitted_bc2), 1 - deviance/null.deviance)->Total.glm.bc2
-res="Vis.bc2"
-for(n in 1:length(resp_bc2_name)){
-  f<-reformulate(resp_bc2_name[-n],res)
-  var.name<-resp_bc2_name[n]
-  g.l.m2<-glm(formula = f, data=tover, family = quasibinomial(link = 'logit'))
-  perc<-(Total.glm.bc2-with(summary(g.l.m2), 1 - deviance/null.deviance))/Total.glm.bc2
-  comm.analysis.bc2<-rbind(comm.analysis.bc2,data.frame("Var"=var.name,"Perc.bc2"=perc))
-}
-#Late
-comm.analysis.bc3<-data.frame("Var"=numeric(),"Perc.bc3"=numeric())
-resp_bc3_name<-variable.names(fitted_bc3)[-1]
-with(summary(fitted_bc3), 1 - deviance/null.deviance)->Total.glm.bc3
-res="Vis.bc3"
-for(n in 1:length(resp_bc3_name)){
-  f<-reformulate(resp_bc3_name[-n],res)
-  var.name<-resp_bc3_name[n]
-  g.l.m3<-glm(formula = f, data=tover, family = quasibinomial(link = 'logit'))
-  perc<-(Total.glm.bc3-with(summary(g.l.m3), 1 - deviance/null.deviance))/Total.glm.bc3
-  comm.analysis.bc3<-rbind(comm.analysis.bc3,data.frame("Var"=var.name,"Perc.bc3"=perc))
+fitted_H2.c1<-glm.cons(formula = H2.c1 ~bet.bc1+XP.bc1,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_H2.c1), 1 - deviance/null.deviance)
+
+fitted_H2.c2<-glm.cons(formula = H2.c2 ~bet.bc2,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_H2.c2), 1 - deviance/null.deviance)
+
+
+fitted_H2.c3<-glm.cons(formula = H2.c3 ~bet.bc3+Enc.bc3,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_H2.c3), 1 - deviance/null.deviance)
+
+#Mod
+
+fitted_mod.c1<-glm.cons(formula = mod.c1 ~bet.bc1+XP.bc1,
+                       data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_mod.c1), 1 - deviance/null.deviance)
+
+fitted_mod.c2<-glm.cons(formula = mod.c2 ~bet.bc2,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_mod.c2), 1 - deviance/null.deviance)
+
+fitted_mod.c3<-glm.cons(formula = mod.c3 ~XP.bc3,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_mod.c3), 1 - deviance/null.deviance)
+
+# Nes
+fitted_nes.c1<-glm.cons(formula = nes.c1 ~bet.bc1+XA.bc1+Fi.bc1,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_nes.c1), 1 - deviance/null.deviance)
+
+
+fitted_nes.c2<-glm.cons(formula = nes.c2 ~XA.bc2+Fi.bc2,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_nes.c2), 1 - deviance/null.deviance)
+
+fitted_nes.c3<-glm.cons(formula = nes.c3 ~bet.bc3+XP.bc3,
+                        data = tover,cons = 1,na.action = na.pass)
+
+with(summary(fitted_nes.c3), 1 - deviance/null.deviance)
+
+disjoint<-function(fit,res){
+  comm.analysis<-data.frame("Var"=numeric(),"Perc"=numeric())
+  pred<-variable.names(fit)[-1]
+  Total.glm<-with(summary(fit), 1 - deviance/null.deviance)
+  for(n in 1:length(pred)){
+    f<-reformulate(pred[-n],res)
+    var.name<-pred[n]
+    var.name <- substr(var.name, 1, nchar(var.name) - 1)
+    g.l.m<-glm.cons(formula = f,
+            data = tover,
+            cons = 1,
+            na.action = na.pass)
+    perc<-(Total.glm-with(summary(g.l.m), 1 - deviance/null.deviance))/Total.glm
+    comm.analysis<-rbind(comm.analysis,data.frame("Var"=var.name,"Perc"=perc))
+  }
+  comm.analysis
 }
 
-stat.data<-data.frame("Phase"=c(rep("Early",5),rep("Mid",5),rep("Late",5)),
-                      "Predictor"=c(rep(c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"),3)),
-                      "Percentage"=c(comm.analysis.bc1$Perc.bc1,NA,NA,comm.analysis.bc2[1,2],NA,comm.analysis.bc2[2:3,2],NA,
-                                     comm.analysis.bc3[1,2],NA,comm.analysis.bc3[2:3,2],NA)*100)
+# Disjoint contribution- Early period
+comm.analysis.bc1<-disjoint(fitted_bc1,"Vis.bc1")
+# Mid
+comm.analysis.bc2<-disjoint(fitted_bc2,"Vis.bc2")
+#Late
+comm.analysis.bc3<-disjoint(fitted_bc3,"Vis.bc3")
+
+comm.analysis.H2.1<-disjoint(fitted_H2.c1,"H2.c1")
+
+comm.analysis.H2.2<-disjoint(fitted_H2.c2,"H2.c2")
+
+comm.analysis.H2.2<-disjoint(fitted_H2.c3,"H2.c3")
+
+comm.analysis<-full_join(comm.analysis.bc1,comm.analysis.bc2,
+                         by = join_by(Var)) %>%
+  full_join(comm.analysis.bc3, by = join_by(Var))
+names(comm.analysis)<-c("Predictor","Early","Mid","Late")
+comm.analysis<-comm.analysis %>%
+  mutate(Predictor=case_when(
+    Predictor=="bet.bc" ~ "Foraging effort",
+    Predictor=="Enc.bc" ~ "Encounter rate",
+    Predictor=="XP.bc" ~ "Plant density",
+    Predictor=="XA.bc" ~ "Animal density",
+    Predictor=="Fi.bc" ~ "Floral resource",
+    TRUE ~ NA
+  ))
+
+# df %>% gather("key", "value", x, y, z) is equivalent
+# to df %>% pivot_longer(c(x, y, z), names_to = "key", values_to = "value")
+stat.data<-comm.analysis %>%
+  pivot_longer(c(Early,Mid,Late),names_to = "Phase", values_to = "Percentage")
+
 stat.data$Phase <- factor(stat.data$Phase, levels = c("Early", "Mid","Late"))
 stat.data$Predictor<- factor(stat.data$Predictor, levels = c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"))
 stat.data<-na.omit(stat.data)
@@ -418,12 +483,12 @@ c.names<-c("Vis.bc1", "bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
 
 struct.names<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2","H2.c3",
                 "mod.c3", "nes.c3")
-cor_dat<-tover[,c.names[10:18]]
+cor_dat<-tover[,c.names[19:27]]
 corr <- round(cor(cor_dat), 2)
 p.mat <- cor_pmat(cor_dat)
-ggcorrplot((corr[!(rownames(corr) %in% struct.names[4:6]),struct.names[4:6]]), hc.order = FALSE,
+ggcorrplot((corr[!(rownames(corr) %in% struct.names[7:9]),struct.names[7:9]]), hc.order = FALSE,
            lab = TRUE, sig.level = 0.001,pch = 8,tl.cex = 18,
-           p.mat = (p.mat[!(rownames(corr) %in% struct.names[4:6]),struct.names[4:6]]),insig = c("blank"))+
+           p.mat = (p.mat[!(rownames(corr) %in% struct.names[7:9]),struct.names[7:9]]),insig = c("blank"))+
   scale_y_discrete(labels = customise)+
   scale_x_discrete(labels = customise)->ggcorplot
 ggcorplot
@@ -501,40 +566,26 @@ boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, 
 par(mar = c(3,4.5,2,1.5))
 
 
-boxplot(H2.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab="del Specialisation (H'2)",
+boxplot(H2.cmat,col = c("grey"), boxwex = 0.5,
+        ylab=(TeX("$\\Delta H'_2$")),
         main="Specialisation", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
 
-boxplot(mod.cmat,col = c("grey"), boxwex = 0.5, ylab=" del Modularity (Q)",
+boxplot(mod.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab=(TeX("$\\Delta Q$")),
         main="Modularity", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
-boxplot(nes.cmat/100,col = c("grey"), boxwex = 0.5, ylab="del Nestedness (WNODA)",
+boxplot(nes.cmat,col = c("grey"), boxwex = 0.5, ylab=(TeX("$\\Delta N$")),
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
 
-# boxplot(H2.mat,col = c("grey"), boxwex = 0.5, ylab="Specialisation (H'2)",
-#         main="Specialisation", names =c("Early","Mid", "Late"),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-#
-#
-#
-# boxplot(mod.mat,col = c("grey"), boxwex = 0.5, ylab="Modularity (Q)",
-#         main="Modularity", names =c("Early","Mid", "Late"),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-#
-#
-# boxplot(nes.mat/100,col = c("grey"), boxwex = 0.5, ylab="Nestedness (WNODA)",
-#         main="Nestedness", names =c("Early","Mid", "Late"),
-#         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
-#
-# dev.copy(jpeg,"box_Net.jpeg",width = 300, height = 300,units = "mm", res = 600)
-# dev.off()
+dev.copy(jpeg,"box_Net.tiff",width = 300, height = 300,units = "mm", res = 600)
+dev.off()
 
 
 
@@ -564,44 +615,51 @@ for(i in 1:nrow(comparison.table)){
   print("----------------------------------------------------")
 }
 
-
-
-
-
 # Model comparison
 dep<-c("H2.c1", "mod.c1", "nes.c1", "H2.c2", "mod.c2", "nes.c2", "H2.c3",
        "mod.c3", "nes.c3")
 pre<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
       "bet.bc2", "Enc.bc2","XP.bc2", "XA.bc2", "Fi.bc2",
-       "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3", )
 comparison.table<-c()
-for(n in dep){
-  if(n %in% dep[1:3] ){
-    glm.com <-glm(formula = reformulate(pre[1:5],n),
-                  data = tover,na.action = na.pass)
-  } else if(n %in% dep[4:6]){
-    glm.com <-glm(formula = reformulate(pre[6:10],n),
-                  data = tover,na.action = na.pass)
-  } else {
-    glm.com <-glm(formula = reformulate(pre[11:15],n),
-                  data = tover,na.action = na.pass)
+dep.list<-list(dep[1:3],dep[4:6],dep[7:9])
+comparison.list<-list()
+for(i in 1:3){
+  for(n in dep.list[[i]]){
+    if(n %in% dep.list[[1]] ){
+      glm.com <-glm.cons(formula = reformulate(pre[1:5],n),
+                         data = tover,cons = 1,na.action = na.pass)
+    } else if(n %in% dep.list[[2]]){
+      glm.com <-glm.cons(formula = reformulate(pre[6:10],n),
+                         data = tover,cons = 1,na.action = na.pass)
+    } else {
+      glm.com <-glm.cons(formula = reformulate(pre[11:15],n),
+                         data = tover,cons = 1,na.action = na.pass)
+    }
+    comparison <- dredge(glm.com)
+    comparison <- comparison[1,2:6]
+    rownames(comparison)<-n
+    comparison.table<-rbind(comparison.table,comparison)
   }
 
-  glm.com <-glm(formula = reformulate(pre,n),
-                data = tover,na.action = na.pass)
-
-  comparison <- dredge(glm.com)
-  comparison[1,2:13]->comparison
-  rownames(comparison)<-n
-  comparison.table<-rbind(comparison.table,comparison)
 }
+
+comparison.list
+
+
 # write.csv(comparison.table,"com_table.csv",row.names = T)
 for(i in 1:nrow(comparison.table)){
-  structure.glm<-glm(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
-                                           rownames(comparison.table[i,])),
+  structure.glm<-glm.cons(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
+                                           rownames(comparison.table[i,])),cons = 1,
                      data = tover, na.action = na.pass)
   print(rownames(comparison.table[i,]))
   print(summary.glm(structure.glm))
   print(with(summary(structure.glm), 1 - deviance/null.deviance))
   print("----------------------------------------------------")
 }
+
+
+
+
+
+
+
