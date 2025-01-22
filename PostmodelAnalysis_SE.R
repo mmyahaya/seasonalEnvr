@@ -225,6 +225,7 @@ stat.data<-comm.analysis %>%
 stat.data$Phase <- factor(stat.data$Phase, levels = c("Early", "Mid","Late"))
 stat.data$Predictor<- factor(stat.data$Predictor, levels = c("Foraging effort","Encounter rate","Plant density","Animal density","Floral resource"))
 stat.data<-na.omit(stat.data)
+stat.data$Percentage<-stat.data$Percentage*100
 Turnv.plot<-ggplot(stat.data, aes(fill=Predictor, y=Percentage, x=Phase )) +
   geom_bar(position="dodge", stat="identity")+ theme_classic()+
   theme(axis.text.x = element_text(size = 14),  # Adjust x-axis text size
