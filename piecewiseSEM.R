@@ -22,7 +22,9 @@ models.1 <- psem(
   glm(formula = Fi.bc1 ~ mean_rP + mean_rA + mean_sP + mean_sA + mean_uP + mean_uA +
         var_rP + var_rA + var_sP + var_sA + var_uP + var_uA,
       data = tover),
-  glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1,
+  
+
+  glm.cons(formula = Vis.bc1 ~bet.bc1+Enc.bc1+XP.bc1+XA.bc1+Fi.bc1,
            data = tover,cons = 1,na.action = na.pass),
   glm.cons(formula = H2.c1 ~bet.bc1+Enc.bc1+XP.bc1+XA.bc1+Fi.bc1,
            data = tover,cons = 1,na.action = na.pass),
@@ -30,20 +32,19 @@ models.1 <- psem(
            data = tover,cons = 1,na.action = na.pass),
   glm.cons(formula = nes.c1 ~bet.bc1+Enc.bc1+XP.bc1+XA.bc1+Fi.bc1,
            data = tover,cons = 1,na.action = na.pass),
+  
   tover
 )
 # Run summary
-summary(models.1)
-
 # Address conflict using conserve = T
-summary(models, conserve = T)
-plot(models)
-model_plot<-plot(models, return=TRUE)
+summary(models.1, conserve = T)
+plot(models.1)
+model_plot<-plot(models.1, return=TRUE)
 
 
 model_plot$edges_df<-model_plot$edges_df %>%
   filter(style=="solid") %>%
-  filter(abs(as.numeric(label))>0.1) %>%
+  filter(abs(as.numeric(label))>0.2) %>%
   mutate(color= ifelse(as.numeric(label)<0,"red",color))
 model_plot$nodes_df<-model_plot$nodes_df %>%
   filter(id %in% c(model_plot$edges_df$from,model_plot$edges_df$to))
@@ -232,3 +233,40 @@ modelList2 <- update(modelList, y2 %~~% y1)
 summary(modelList2)
 
 plot(modelList)
+
+
+glm<-glm(formula = Vis.bc1 ~mean_rP + mean_rA + mean_sP + mean_sA + mean_uP + mean_uA +
+           var_rP + var_rA + var_sP + var_sA + var_uP + var_uA,
+         data = tover)
+
+summary(glm)
+
+with(summary(glm), 1 - deviance/null.deviance)
+
+
+glm<-glm(formula = H2.c1 ~mean_rP + mean_rA + mean_sP + mean_sA + mean_uP + mean_uA +
+           var_rP + var_rA + var_sP + var_sA + var_uP + var_uA,
+         data = tover)
+
+summary(glm)
+
+with(summary(glm), 1 - deviance/null.deviance)
+
+
+
+glm<-glm(formula = mod.c1 ~mean_rP + mean_rA + mean_sP + mean_sA + mean_uP + mean_uA +
+           var_rP + var_rA + var_sP + var_sA + var_uP + var_uA,
+         data = tover)
+
+summary(glm)
+
+with(summary(glm), 1 - deviance/null.deviance)
+
+
+glm<-glm(formula = nes.c1 ~mean_rP + mean_rA + mean_sP + mean_sA + mean_uP + mean_uA +
+           var_rP + var_rA + var_sP + var_sA + var_uP + var_uA,
+         data = tover)
+
+summary(glm)
+
+with(summary(glm), 1 - deviance/null.deviance)
