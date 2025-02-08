@@ -431,22 +431,36 @@ mutate(Phase = case_when(
   TRUE ~ ""
 ))
 
+dis.table<-dis.table %>% 
+  mutate(Structure = case_when(
+    str_sub(response,1,3) == "Vis" ~ "Vis",
+    str_sub(response,1,2) == "H2" ~ "H2",
+    str_sub(response,1,3) == "mod" ~ "mod",
+    str_sub(response,1,3) == "nes" ~ "nes",
+    TRUE ~ ""
+  ))
+dis.table$Structure<-factor(dis.table$Structure, levels = c("Vis","H2","mod","nes"))
 
+dis.table$response<-factor(dis.table$response, levels = dep)
+dis.table$Phase<-factor(dis.table$Phase, levels = c("Early","Mid","Late"))
 
-dis_plot_early<-ggplot(dis.table %>% filter(Phase=="Early")) +
-  geom_bar( aes(fill=Var, y=Perc*100, x=response ),
+#%>% filter(Phase=="Early")
+#dis_plot_early<-
+ggplot(dis.table) +
+  geom_bar( aes(fill=Var, y=Perc*100, x=Structure ),
             position="dodge", stat="identity")+ theme_classic()+
   theme(axis.text.x = element_text(size = 14),  # Adjust x-axis text size
         axis.text.y = element_text(size = 14),  # Adjust y-axis text size
         axis.title.x = element_text(size = 14),  # Adjust x-axis label size
         axis.title.y = element_text(size = 14),  # Adjust y-axis label size
         legend.text = element_text(size = 14),
-        legend.title = element_text(size = 14))+
-  labs(y="Disjoint contribution (%)")+theme(legend.position = "none")+
-  scale_x_discrete(labels=c("Vis.bc1"=bquote(Delta ~ "V"), 
-                            "H2.c1"=bquote(Delta ~ "H'2"), 
-                            "mod.c1"=bquote(Delta ~ "Q"),
-                            "nes.c1"=bquote(Delta ~ "N")))
+        legend.title = element_text(size = 14,),
+        strip.text = element_text(size = 14))+ scale_fill_brewer(palette = "Set1")+
+  labs(y="Disjoint contribution (%)")+facet_grid(Phase~., switch = 'y')+
+  scale_x_discrete(labels=c("Vis"=bquote(Delta ~ "Interaction"), 
+                            "H2"=bquote(Delta ~ "Specialisation"), 
+                            "mod"=bquote(Delta ~ "Modularity"),
+                            "nes"=bquote(Delta ~ "Nestedness")))
 dis_plot_early
 
   library(gridExtra)
