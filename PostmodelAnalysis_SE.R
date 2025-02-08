@@ -443,10 +443,10 @@ dis.table$Structure<-factor(dis.table$Structure, levels = c("Vis","H2","mod","ne
 
 dis.table$response<-factor(dis.table$response, levels = dep)
 dis.table$Phase<-factor(dis.table$Phase, levels = c("Early","Mid","Late"))
-
+dis.table<-dis.table %>% rename("Turn")
 #%>% filter(Phase=="Early")
 #dis_plot_early<-
-ggplot(dis.table) +
+dis_plot<-ggplot(dis.table) +
   geom_bar( aes(fill=Var, y=Perc*100, x=Structure ),
             position="dodge", stat="identity")+ theme_classic()+
   theme(axis.text.x = element_text(size = 14),  # Adjust x-axis text size
@@ -455,18 +455,26 @@ ggplot(dis.table) +
         axis.title.y = element_text(size = 14),  # Adjust y-axis label size
         legend.text = element_text(size = 14),
         legend.title = element_text(size = 14,),
-        strip.text = element_text(size = 14))+ scale_fill_brewer(palette = "Set1")+
-  labs(y="Disjoint contribution (%)")+facet_grid(Phase~., switch = 'y')+
+        strip.text = element_text(size = 14))+
+  labs(y="Disjoint contribution (%)", x="Turnover",
+       fill = "Seasonal parameter")+facet_grid(Phase~., switch = 'y')+
   scale_x_discrete(labels=c("Vis"=bquote(Delta ~ "Interaction"), 
                             "H2"=bquote(Delta ~ "Specialisation"), 
                             "mod"=bquote(Delta ~ "Modularity"),
-                            "nes"=bquote(Delta ~ "Nestedness")))
-dis_plot_early
+                            "nes"=TeX("$Delta$ Nestedness")))+
+  scale_fill_brewer(palette = "Set1",
+    labels = c("mean_rP"=TeX("mean $(rho^P)$"), "mean_rA"=TeX("mean $(rho^A)$"),
+               "mean_sP"=TeX("mean $(s^P)$"), "mean_sA"=TeX("mean $(s^A)$"),
+               "mean_uP"=TeX("mean $(u^P)$"),
+               "mean_uA"=TeX("mean $(u^A)$"), "var_rP"=TeX("var $(rho^P)$"),
+               "var_rA"=TeX("var $(rho^A)$"), "var_sP"=TeX("var $(s^P)$")
+               , "var_sA"=TeX("var $(s^A)$"), "var_uP"=TeX("var $(u^P)$"),
+               "var_uA"=TeX("var $(u^A)$")) )
 
-  library(gridExtra)
-  grid.arrange(dis_plot_early,dis_plot_mid,dis_plot_late,ncol = 1)->eff.plot
-
-
+dis_plot
+ 
+ggsave("dis_plot.tiff", plot =dis_plot ,
+       width = 10, height = 5, dpi = 600)
 
 
 
