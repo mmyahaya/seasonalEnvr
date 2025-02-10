@@ -256,44 +256,6 @@ ggsave("Turnv_His2.tiff", plot =Turnv.plot ,
 
 #--------------------------------------------------
 
-customise<-c("Vis.bc1"="Int. Early",
-             "Vis.bc2"="Int. Mid",
-             "Vis.bc3"="Int. Late",
-             "H2.1"="Specialisation (Early)",
-             "H2.2"="Specialisation (Mid)",
-             "H2.3"="Specialisation (Late)",
-             "mod.1"="Modularity (Early)",
-             "mod.2"="Modularity (Mid)",
-             "mod.3"="Modularity (Late)",
-             "nes.1"="Nestedness (Early)",
-             "nes.2"="Nestedness (Mid)",
-             "nes.3"="Nestedness (Late)",
-
-             "H2.c1"="c.Specialisation (Early)",
-             "H2.c2"="c.Specialisation (Mid)",
-             "H2.c3"="c.Specialisation (Late)",
-             "mod.c1"="c.Modularity (Early)",
-             "mod.c2"="c.Modularity (Mid)",
-             "mod.c3"="c.Modularity (Late)",
-             "nes.c1"="c.Nestedness (Early)",
-             "nes.c2"="c.Nestedness (Mid)",
-             "nes.c3"="c.Nestedness (Late)",
-
-             "mean_rA"="M. Animal amplitude","mean_rP"="M. Plant amplitude",
-             "mean_cP"="M. Plant denity dep.",
-             "mean_w"="M. decay rate","mean_sP"="M. Plant BP",
-             "mean_sA"="M. Animal BP","mean_uP"="M. Plant SL",
-             "mean_uA"="M. Animal SL","var_rP"="V. Plant amplitude",
-             "var_rA"="V. Animal amplitude","var_sA"="V. Animal BP",
-             "var_cP"="V. Plant density dep.","var_sigmaP"="V. Plant conversion eff.",
-             "var_sigmaA"="V. Animal conversion eff.","var_a"="V. floral resource","var_sP"="V. Plant BP",
-             "var_uP"="V. Plant SL","var_uA"="V. Animal SL",
-              "bet.bc1"="FE. (Early)", "Enc.bc1"="Enc. (Early)", "XP.bc1"="Pl. (Early)",
-             "XA.bc1"="An. (Early)", "Fi.bc1"="Fl. (Early)",
-             "bet.bc2"="FE. (Mid)", "Enc.bc2"="Enc. (Mid)", "XP.bc2"="Pl. (Mid)",
-             "XA.bc2"="An. (Mid)", "Fi.bc2"="Fl. (Mid)",
-             "bet.bc3"="FE. (Late)", "Enc.bc3"="Enc. (Late)", "XP.bc3"="Pl. (Late)"
-             , "XA.bc3"="An. (Late)", "Fi.bc3"="Fl. (Late)")
 
 
 seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP",
@@ -336,7 +298,8 @@ TukeyHSD(one.test.V)
 #Plots
 layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
 par(mar = c(3,4.5,2,1.5))
-boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover",
+boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, 
+        ylab=TeX("$Delta V$"),
         main="Interaction turnover", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 
@@ -408,14 +371,13 @@ for(i in 1:nrow(comparison.table)){
   
 }
 
+#### Write disjoint contribution ####
+
 dis.table<-data.frame()
-# write.csv(comparison.table,"com_table.csv",row.names = T)
 for(i in 1:nrow(comparison.table)){
   structure.glm<-glm(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
                                            rownames(comparison.table[i,])),
                      data = tover, na.action = na.pass)
-  #cli::cli_h2(cli::col_blue(rownames(comparison.table[i,])))
-  #print(disjoint_season(structure.glm,rownames(comparison.table[i,])))
   dis<-disjoint_season(structure.glm,rownames(comparison.table[i,]))
   dis$response<-rownames(comparison.table[i,])
   dis.table<-rbind(dis.table,dis)
@@ -443,33 +405,41 @@ dis.table$Structure<-factor(dis.table$Structure, levels = c("Vis","H2","mod","ne
 
 dis.table$response<-factor(dis.table$response, levels = dep)
 dis.table$Phase<-factor(dis.table$Phase, levels = c("Early","Mid","Late"))
-dis.table<-dis.table %>% rename("Turn")
-#%>% filter(Phase=="Early")
-#dis_plot_early<-
+
 dis_plot<-ggplot(dis.table) +
-  geom_bar( aes(fill=Var, y=Perc*100, x=Structure ),
-            position="dodge", stat="identity")+ theme_classic()+
-  theme(axis.text.x = element_text(size = 14),  # Adjust x-axis text size
-        axis.text.y = element_text(size = 14),  # Adjust y-axis text size
-        axis.title.x = element_text(size = 14),  # Adjust x-axis label size
-        axis.title.y = element_text(size = 14),  # Adjust y-axis label size
+  geom_bar(aes(fill = Var, y = Perc * 100, x = Structure), 
+           position = "dodge", stat = "identity") + 
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 14),  
+        axis.text.y = element_text(size = 14),  
+        axis.title.x = element_text(size = 14),  
+        axis.title.y = element_text(size = 14),  
         legend.text = element_text(size = 14),
-        legend.title = element_text(size = 14,),
-        strip.text = element_text(size = 14))+
-  labs(y="Disjoint contribution (%)", x="Turnover",
-       fill = "Seasonal parameter")+facet_grid(Phase~., switch = 'y')+
-  scale_x_discrete(labels=c("Vis"=bquote(Delta ~ "Interaction"), 
-                            "H2"=bquote(Delta ~ "Specialisation"), 
-                            "mod"=bquote(Delta ~ "Modularity"),
-                            "nes"=TeX("$Delta$ Nestedness")))+
-  scale_fill_brewer(palette = "Set1",
-    labels = c("mean_rP"=TeX("mean $(rho^P)$"), "mean_rA"=TeX("mean $(rho^A)$"),
-               "mean_sP"=TeX("mean $(s^P)$"), "mean_sA"=TeX("mean $(s^A)$"),
-               "mean_uP"=TeX("mean $(u^P)$"),
-               "mean_uA"=TeX("mean $(u^A)$"), "var_rP"=TeX("var $(rho^P)$"),
-               "var_rA"=TeX("var $(rho^A)$"), "var_sP"=TeX("var $(s^P)$")
-               , "var_sA"=TeX("var $(s^A)$"), "var_uP"=TeX("var $(u^P)$"),
-               "var_uA"=TeX("var $(u^A)$")) )
+        legend.title = element_text(size = 14),  # Adjust legend title size
+        strip.text = element_text(size = 14)) +
+  labs(y = "Disjoint contribution (%)", fill = "Seasonal parameter") +  # Rename legend
+  facet_grid(Phase ~ ., switch = 'y') +
+  
+  # Custom axis labels with expressions
+  scale_x_discrete(labels = c("Vis" = bquote(Delta ~ "Interaction"), 
+                              "H2" = bquote(Delta ~ "Specialisation"), 
+                              "mod" = bquote(Delta ~ "Modularity"),
+                              "nes" = TeX("$Delta$ Nestedness"))) +
+  
+  # Apply Set1 palette for fill colors
+  scale_fill_brewer(palette = "Set1", 
+                    labels = c("mean_rP" = TeX("mean $(rho^P)$"), 
+                               "mean_rA" = TeX("mean $(rho^A)$"),
+                               "mean_sP" = TeX("mean $(s^P)$"), 
+                               "mean_sA" = TeX("mean $(s^A)$"),
+                               "mean_uP" = TeX("mean $(u^P)$"),
+                               "mean_uA" = TeX("mean $(u^A)$"), 
+                               "var_rP" = TeX("var $(rho^P)$"),
+                               "var_rA" = TeX("var $(rho^A)$"), 
+                               "var_sP" = TeX("var $(s^P)$"),
+                               "var_sA" = TeX("var $(s^A)$"), 
+                               "var_uP" = TeX("var $(u^P)$"),
+                               "var_uA" = TeX("var $(u^A)$")))
 
 dis_plot
  
