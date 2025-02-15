@@ -137,3 +137,19 @@ matplot(times[(51*365*10+1):200001],ForEffMatA[(51*365*10+1):200001,], type = "l
 dev.copy(jpeg,"SE_Fullplot_US101.jpeg",width = 300, height = 300,units = "mm", res = 600)
 dev.off()
 #Steady
+
+
+layout(matrix(1:6, ncol = 1), widths = 1, heights = 1, respect = FALSE)
+
+for (i in seq(1,(dim(solu1)[1]-70),70)[c(2,5,10,15,20,25)]){
+  XP.a<-as.matrix(P1[i,2:(M+1)],nr=M)
+  XA.a<-as.matrix(A1[i,2:(N+1)],nr=N)
+  Fi.a<-as.matrix(F1[i,2:(M+1)],nr=M)
+  bet.a<-matrix(FE[i,2:(M*N+1)],M,N)
+  V.a<-bet.a*(Fi.a%*%t(XA.a))
+  plotweb(web=V.a,
+          method = "cca",
+          col.high = "red3",
+          col.low = "blue3")}
+dev.copy(jpeg,"plotweb.jpeg",width = 300, height = 900,units = "mm", res = 600)
+dev.off()

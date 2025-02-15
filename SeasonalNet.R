@@ -228,11 +228,3 @@ names(structures)<-c("H2.1","mod.1","nes.1","XP.1","XA.1","Fi.1","Enc.1","V.1",
                      "H2.3","mod.3","nes.3","XP.3","XA.3","Fi.3","Enc.3","V.3")
 
 
-for (i in seq(1,(dim(solu1)[1]-70),70)[c(2,5,10,15,20,25)]){
-  XP.a<-as.matrix(P1[i,2:(M+1)],nr=M)
-  XA.a<-as.matrix(A1[i,2:(N+1)],nr=N)
-  Fi.a<-as.matrix(F1[i,2:(M+1)],nr=M)
-  bet.a<-matrix(FE[i,2:(M*N+1)],M,N)
-  V.a<-bet.a*(Fi.a%*%t(XA.a))
-  plotweb(V.a)}
-
