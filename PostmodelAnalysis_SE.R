@@ -1,12 +1,10 @@
 library(reshape2)
-library(car)
 library(zetadiv)
 library(ggplot2)
+library(car)
 library(MuMIn)
-library(ggcorrplot)
 library(tidyverse)
 library(latex2exp)
-
 
 
 
@@ -77,6 +75,38 @@ mega.model.comparison3 <- dredge(maineffects.glm3)
 head(mega.model.comparison3)
 as.matrix(mega.model.comparison3)->mmc3
 write.csv(mmc3,"mmc3.csv",row.names = F)
+
+
+dep<-c("Vis.bc1", "H2.c1", "mod.c1", "nes.c1",
+       "Vis.bc2", "H2.c2", "mod.c2", "nes.c2", 
+       "Vis.bc3", "H2.c3", "mod.c3", "nes.c3")
+
+turnoverParm<-c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1",
+                "bet.bc2", "Enc.bc2", "XP.bc2", "XA.bc2", "Fi.bc2",
+                "bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3")
+
+#### Compute the best models for interaction and structure turnover####
+
+comparison.table <- c()
+
+# Define index groups for turnoverParm
+index_groups <- list(1:5, 6:10, 11:15)
+
+# Loop through all indices in dep
+for (i in seq_along(dep)) {
+  parm_index <- ((i - 1) %/% 4) + 1  # Determine the correct turnoverParm index group
+  glm.com <- glm.cons(formula = reformulate(turnoverParm[index_groups[[parm_index]]], dep[i]),
+                      data = tover, cons = 1, na.action = na.pass)
+  
+  comparison <- dredge(glm.com)
+  comparison[1, 2:6] -> comparison
+  rownames(comparison) <- dep[i]
+  names(comparison) <- c("Foraging effort", "Encounter rate", 
+                         "Floral resource", "Animal density", "Plant density")
+  comparison.table <- rbind(comparison.table, comparison)
+}
+
+
 # Early
 
 
@@ -121,56 +151,60 @@ my_vif3
 my_vif3[my_vif3>5]
 
 
-
 fitted_H2.c1<-glm.cons(formula = H2.c1 ~bet.bc1+XP.bc1,
                        data = tover,cons = 1,na.action = na.pass)
 
+
 with(summary(fitted_H2.c1), 1 - deviance/null.deviance)
+vif(fitted_H2.c1)
 
 fitted_H2.c2<-glm.cons(formula = H2.c2 ~bet.bc2,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_H2.c2), 1 - deviance/null.deviance)
-
+vif(fitted_H2.c2)
 
 fitted_H2.c3<-glm.cons(formula = H2.c3 ~bet.bc3+Enc.bc3,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_H2.c3), 1 - deviance/null.deviance)
-
+vif(fitted_H2.c3)
 #Mod
 
 fitted_mod.c1<-glm.cons(formula = mod.c1 ~bet.bc1+XP.bc1,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_mod.c1), 1 - deviance/null.deviance)
-
+vif(fitted_mod.c1)
 fitted_mod.c2<-glm.cons(formula = mod.c2 ~bet.bc2,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_mod.c2), 1 - deviance/null.deviance)
-
+vif(fitted_mod.c2)
 fitted_mod.c3<-glm.cons(formula = mod.c3 ~XP.bc3,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_mod.c3), 1 - deviance/null.deviance)
-
+vif(fitted_mod.c3)
 # Nes
-fitted_nes.c1<-glm.cons(formula = nes.c1 ~bet.bc1+XA.bc1+Fi.bc1,
+fitted_nes.c1<-glm.cons(formula = nes.c1 ~bet.bc1+Enc.bc1+XA.bc1,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_nes.c1), 1 - deviance/null.deviance)
+vif(fitted_nes.c1)
 
-
-fitted_nes.c2<-glm.cons(formula = nes.c2 ~XA.bc2+Fi.bc2,
+fitted_nes.c2<-glm.cons(formula = nes.c2 ~Enc.bc1+XA.bc2+Fi.bc2,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_nes.c2), 1 - deviance/null.deviance)
-
+vif(fitted_nes.c2)
 fitted_nes.c3<-glm.cons(formula = nes.c3 ~bet.bc3+XP.bc3,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_nes.c3), 1 - deviance/null.deviance)
+vif(fitted_nes.c3)
+
+##### Compute disjoint contribution for interaction turnover ####
 
 disjoint<-function(fit,res){
   comm.analysis<-data.frame("Var"=numeric(),"Perc"=numeric())
@@ -238,7 +272,8 @@ Turnv.plot<-ggplot(stat.data, aes(fill=Predictor, y=Percentage, x=Phase )) +
         axis.title.y = element_text(size = 14),  # Adjust y-axis label size
         legend.text = element_text(size = 14),
         legend.title = element_text(size = 14))+
-  labs(y="Disjoint contribution (%)")+
+  labs(y="Disjoint contribution (%)",
+       x=TeX("Interaction turnover ($Delta V$)"))+
   scale_fill_discrete(
     labels = c("Foraging effort"=bquote(Delta ~ "Foraging effort"), 
                "Encounter rate"=bquote(Delta ~ "Encounter rate"),
@@ -247,23 +282,14 @@ Turnv.plot<-ggplot(stat.data, aes(fill=Predictor, y=Percentage, x=Phase )) +
   )
   #facet_grid(Phase ~ .)
 Turnv.plot
-ggsave("Turnv_His2.tiff", plot =Turnv.plot ,
+ggsave("His_V1503.tiff", plot =Turnv.plot ,
        width = 7, height = 5, dpi = 600)
 
 
 
 
 
-#--------------------------------------------------
-
-
-
-seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP",
-              "mean_uA", "var_rP", "var_rA", "var_sP", "var_sA", "var_uP",
-              "var_uA")
-
-
-
+#### Test for differences in structure turnovers ####
 
 
 
@@ -300,8 +326,9 @@ layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
 par(mar = c(3,4.5,2,1.5))
 boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5, 
         ylab=TeX("$Delta V$"),
-        main="Interaction turnover", names =c("Early","Mid", "Late"),
+        main="Interaction", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+text(0.6,1,"(a) ",cex=2.0)
 
 
 par(mar = c(3,4.5,2,1.5))
@@ -311,21 +338,21 @@ boxplot(H2.cmat,col = c("grey"), boxwex = 0.5,
         ylab=(TeX("$\\Delta H'_2$")),
         main="Specialisation", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-
+text(0.6,1,"(b) ",cex=2.0)
 
 
 boxplot(mod.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab=(TeX("$\\Delta Q$")),
         main="Modularity", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
-
+text(0.6,1,"(c) ",cex=2.0)
 
 boxplot(nes.cmat,col = c("grey"), boxwex = 0.5, ylab=(TeX("$\\Delta N$")),
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+text(0.6,1,"(d) ",cex=2.0)
 
 
-
-dev.copy(jpeg,"box_Net.tiff",width = 300, height = 300,units = "mm", res = 600)
+dev.copy(jpeg,"box_Net1503.tiff",width = 300, height = 300,units = "mm", res = 600)
 dev.off()
 
 
@@ -344,6 +371,11 @@ disjoint_season<-function(fit,res){
   comm.analysis
 }
 
+
+
+seasonParm<-c("mean_rP", "mean_rA", "mean_sP", "mean_sA", "mean_uP",
+              "mean_uA", "var_rP", "var_rA", "var_sP", "var_sA", "var_uP",
+              "var_uA")
 dep<-c("Vis.bc1", "H2.c1", "mod.c1", "nes.c1",
        "Vis.bc2", "H2.c2", "mod.c2", "nes.c2", 
        "Vis.bc3", "H2.c3", "mod.c3", "nes.c3")
@@ -362,11 +394,12 @@ for(n in dep){
 for(i in 1:nrow(comparison.table)){
   structure.glm<-glm(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
                                            rownames(comparison.table[i,])),
-                     data = tover, na.action = na.pass)
+                     data = tover)
   cli::cli_h2(cli::col_blue(rownames(comparison.table[i,])))
-  print(structure.glm,rownames(comparison.table[i,]))
  
   print(summary.glm(structure.glm))
+  
+  
   cat("R_squared:",cli::col_red(round(with(summary(structure.glm), 1 - deviance/null.deviance),4)),"\n\n\n")
   
 }
@@ -377,7 +410,7 @@ dis.table<-data.frame()
 for(i in 1:nrow(comparison.table)){
   structure.glm<-glm(formula = reformulate(names(comparison.table[i,!is.na(comparison.table[i,])]),
                                            rownames(comparison.table[i,])),
-                     data = tover, na.action = na.pass)
+                     data = tover)
   dis<-disjoint_season(structure.glm,rownames(comparison.table[i,]))
   dis$response<-rownames(comparison.table[i,])
   dis.table<-rbind(dis.table,dis)
