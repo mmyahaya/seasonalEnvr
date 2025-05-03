@@ -29,7 +29,7 @@ Urand<-function(mu_y,var_y,m,n){
   Urand<-a*(1+b*(2*matrix(runif(m*n,0,1),m,n)-1))
   return(Urand)
 }
-
+set.seed(1234)
 M=7 #plant
 N=13 #animal
 set.seed(1234)
@@ -165,28 +165,29 @@ for (i in seq(1,(dim(solu1)[1]-70),70)){
   bet.a<-matrix(FE[i,2:(M*N+1)],M,N)
   V.a<-bet.a*(Fi.a%*%t(XA.a))
   E.a<-Fi.a%*%t(XA.a)
-  H2.a<-bipartite::H2fun(V.a, H2_integer = FALSE)[1] #Specialisation
-  mod.a<-bipartite::computeModules(V.a)@likelihood  # Modularity
-  nes.a<-bipartite::nested(V.a,method = "WNODA") #Nestedness
-  
-  
+  # H2.a<-bipartite::H2fun(V.a, H2_integer = FALSE)[1] #Specialisation
+  # mod.a<-bipartite::computeModules(V.a)@likelihood  # Modularity
+  # nes.a<-bipartite::nested(V.a,method = "WNODA") #Nestedness
+  #
+
   XP.b<-as.matrix(P1[i+70,2:(M+1)],nr=M)
   XA.b<-as.matrix(A1[i+70,(2):(N+1)],nr=N)
   Fi.b<-as.matrix(F1[i+70,2:(M+1)],nr=M)
   bet.b<-matrix(ForEffMatA[i+70,],M,N)
   V.b<-bet.b*(Fi.b%*%t(XA.b))
   E.b<-Fi.b%*%t(XA.b)
-  #Computation of network structural properties 
-  H2.b<-bipartite::H2fun(V.b, H2_integer = FALSE)[1] #Specialisation
-  mod.b<-bipartite::computeModules(V.b)@likelihood  # Modularity
-  nes.b<-bipartite::nested(V.b,method = "WNODA") # Nestedness
-  
-  H2.c<- abs(H2.a-H2.b)
-  mod.c<- abs(mod.a-mod.b)
-  nes.c<- abs(nes.a-nes.b)
-  
-  
-  
+  # #Computation of network structural properties
+  # H2.b<-bipartite::H2fun(V.b, H2_integer = FALSE)[1] #Specialisation
+  # mod.b<-bipartite::computeModules(V.b)@likelihood  # Modularity
+  # nes.b<-bipartite::nested(V.b,method = "WNODA") # Nestedness
+  #
+  # H2.c<- abs(H2.a-H2.b)
+  # mod.c<- abs(mod.a-mod.b)
+  # nes.c<- abs(nes.a-nes.b)
+  #
+  H2.c<- mod.c<- nes.c<- 1
+  #
+
   #Bray-Curtis
   Vis.bc.value<-1-(2*sum(pmin(V.a,V.b))/(sum(V.a)+sum(V.b)))
   bet.bc.value<-1-(2*sum(pmin(bet.a,bet.b))/(sum(bet.a)+sum(bet.b)))
@@ -194,7 +195,8 @@ for (i in seq(1,(dim(solu1)[1]-70),70)){
   XP.bc.value<-1-(2*sum(pmin(XP.a,XP.b))/(sum(XP.a)+sum(XP.b)))
   XA.bc.value<-1-(2*sum(pmin(XA.a,XA.b))/(sum(XA.a)+sum(XA.b)))
   Fi.bc.value<-1-(2*sum(pmin(Fi.a,Fi.b))/(sum(Fi.a)+sum(Fi.b)))
-  bc.value<-data.frame("Vis.bc"=Vis.bc.value, "bet.bc"=bet.bc.value, "Enc.bc"=Enc.bc.value,"XP.bc"=XP.bc.value,
+  bc.value<-data.frame("Vis.bc"=Vis.bc.value, "bet.bc"=bet.bc.value,
+                       "Enc.bc"=Enc.bc.value,"XP.bc"=XP.bc.value,
                        "XA.bc"=XA.bc.value,"Fi.bc"=Fi.bc.value,
                        "H2.c"=H2.c,"mod.c"=mod.c,"nes.c"=nes.c)
   bc.t.over<-rbind(bc.t.over,bc.value)
@@ -214,7 +216,7 @@ for(i in seq(1,(dim(solu1)[1]),70)){
   Enc.t<-Fi.t%*%t(XA.t)
   bet.t<-matrix(FE[i,2:(M*N+1)],M,N)
   V.t<-bet.t*(Fi.t%*%t(XA.t))
-  #Computation of network structural properties 
+  #Computation of network structural properties
   H2<-H2fun(V.t, H2_integer = FALSE)[1] #Specialisation
   mod<-computeModules(V.t)@likelihood  # Modularity
   nes<-nested(V.t,method = "WNODA") # Nestedness
