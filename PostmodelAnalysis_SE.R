@@ -153,7 +153,7 @@ my_vif3[my_vif3>5]
 
 fitted_H2.c1<-glm.cons(formula = H2.c1 ~bet.bc1+XP.bc1,
                        data = tover,cons = 1,na.action = na.pass)
-
+summary.glm(fitted_H2.c1)
 
 with(summary(fitted_H2.c1), 1 - deviance/null.deviance)
 vif(fitted_H2.c1)
@@ -163,46 +163,53 @@ fitted_H2.c2<-glm.cons(formula = H2.c2 ~bet.bc2,
 
 with(summary(fitted_H2.c2), 1 - deviance/null.deviance)
 vif(fitted_H2.c2)
-
+summary.glm(fitted_H2.c2)
 fitted_H2.c3<-glm.cons(formula = H2.c3 ~bet.bc3+Enc.bc3,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_H2.c3), 1 - deviance/null.deviance)
 vif(fitted_H2.c3)
+summary.glm(fitted_H2.c3)
 #Mod
 
 fitted_mod.c1<-glm.cons(formula = mod.c1 ~bet.bc1+XP.bc1,
                        data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_mod.c1), 1 - deviance/null.deviance)
+summary.glm(fitted_mod.c1)
 vif(fitted_mod.c1)
 fitted_mod.c2<-glm.cons(formula = mod.c2 ~bet.bc2,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_mod.c2), 1 - deviance/null.deviance)
 vif(fitted_mod.c2)
+summary.glm(fitted_mod.c2)
 fitted_mod.c3<-glm.cons(formula = mod.c3 ~XP.bc3,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_mod.c3), 1 - deviance/null.deviance)
 vif(fitted_mod.c3)
+summary.glm(fitted_mod.c3)
 # Nes
 fitted_nes.c1<-glm.cons(formula = nes.c1 ~bet.bc1+Enc.bc1+XA.bc1,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_nes.c1), 1 - deviance/null.deviance)
+summary.glm(fitted_nes.c1)
 vif(fitted_nes.c1)
 
-fitted_nes.c2<-glm.cons(formula = nes.c2 ~Enc.bc1+XA.bc2+Fi.bc2,
+fitted_nes.c2<-glm.cons(formula = nes.c2 ~XA.bc2+Fi.bc2,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_nes.c2), 1 - deviance/null.deviance)
 vif(fitted_nes.c2)
-fitted_nes.c3<-glm.cons(formula = nes.c3 ~bet.bc3+XP.bc3,
+summary.glm(fitted_nes.c2)
+fitted_nes.c3<-glm.cons(formula = nes.c3 ~bet.bc3+XA.bc3,
                         data = tover,cons = 1,na.action = na.pass)
 
 with(summary(fitted_nes.c3), 1 - deviance/null.deviance)
 vif(fitted_nes.c3)
+summary.glm(fitted_nes.c3)
 
 ##### Compute disjoint contribution for interaction turnover ####
 
@@ -438,9 +445,10 @@ dis.table$Structure<-factor(dis.table$Structure, levels = c("Vis","H2","mod","ne
 
 dis.table$response<-factor(dis.table$response, levels = dep)
 dis.table$Phase<-factor(dis.table$Phase, levels = c("Early","Mid","Late"))
+dis.table$Perc<-dis.table$Perc*100
 
-dis_plot<-ggplot(dis.table) +
-  geom_bar(aes(fill = Var, y = Perc * 100, x = Structure), 
+dis_plot<-ggplot(dis.table %>% filter(!(Structure=="Vis"))) +
+  geom_bar(aes(fill = Var, y = Perc, x = Structure), 
            position = "dodge", stat = "identity") + 
   theme_classic() +
   theme(axis.text.x = element_text(size = 14),  
@@ -479,5 +487,34 @@ dis_plot
 ggsave("dis_plot.tiff", plot =dis_plot ,
        width = 10, height = 5, dpi = 600)
 
+Vis_table<-dis.table %>% filter(Structure=="Vis")
 
+Vis_plot<-ggplot(Vis_table, aes(fill=Var, y=Perc, x=Phase )) +
+  geom_bar(position="dodge", stat="identity")+ theme_classic()+
+  theme(axis.text.x = element_text(size = 14),  # Adjust x-axis text size
+        axis.text.y = element_text(size = 14),  # Adjust y-axis text size
+        axis.title.x = element_text(size = 14),  # Adjust x-axis label size
+        axis.title.y = element_text(size = 14),  # Adjust y-axis label size
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14))+
+  labs(y="Disjoint contribution (%)",
+       x=TeX("Interaction turnover ($Delta V$)"),
+       fill = "Seasonal parameter")+
+  scale_fill_brewer(palette = "Set1",
+    labels  = c("mean_rP" = TeX("mean $(rho^P)$"), 
+                        "mean_rA" = TeX("mean $(rho^A)$"),
+                        "mean_sP" = TeX("mean $(s^P)$"), 
+                        "mean_sA" = TeX("mean $(s^A)$"),
+                        "mean_uP" = TeX("mean $(u^P)$"),
+                        "mean_uA" = TeX("mean $(u^A)$"), 
+                        "var_rP" = TeX("var $(rho^P)$"),
+                        "var_rA" = TeX("var $(rho^A)$"), 
+                        "var_sP" = TeX("var $(s^P)$"),
+                        "var_sA" = TeX("var $(s^A)$"), 
+                        "var_uP" = TeX("var $(u^P)$"),
+                        "var_uA" = TeX("var $(u^A)$")))  # Custom math labels
 
+Vis_plot
+
+ggsave("His_vis1503.tiff", plot =Vis_plot ,
+       width = 7, height = 5, dpi = 600)

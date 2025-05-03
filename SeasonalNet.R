@@ -32,6 +32,7 @@ Urand<-function(mu_y,var_y,m,n){
 
 M=7 #plant
 N=13 #animal
+set.seed(1234)
 {RMatA<-matrix(1/M,M,N)
 
   uP<-Urand(0.1,0.02,M,1)
