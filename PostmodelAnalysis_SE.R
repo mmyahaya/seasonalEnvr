@@ -150,7 +150,7 @@ vif(fitted_bc3)->my_vif3
 my_vif3
 my_vif3[my_vif3>5]
 
-
+# Specialisation
 fitted_H2.c1<-glm.cons(formula = H2.c1 ~bet.bc1+XP.bc1,
                        data = tover,cons = 1,na.action = na.pass)
 summary.glm(fitted_H2.c1)
@@ -238,11 +238,6 @@ comm.analysis.bc2<-disjoint(fitted_bc2,"Vis.bc2")
 #Late
 comm.analysis.bc3<-disjoint(fitted_bc3,"Vis.bc3")
 
-comm.analysis.H2.1<-disjoint(fitted_H2.c1,"H2.c1")
-
-comm.analysis.H2.2<-disjoint(fitted_H2.c2,"H2.c2")
-
-comm.analysis.H2.2<-disjoint(fitted_H2.c3,"H2.c3")
 
 comm.analysis<-full_join(comm.analysis.bc1,comm.analysis.bc2,
                          by = join_by(Var)) %>%
@@ -518,3 +513,115 @@ Vis_plot
 
 ggsave("His_vis1503.tiff", plot =Vis_plot ,
        width = 7, height = 5, dpi = 600)
+
+#### Supplementary
+layout(matrix(1:3, ncol = 1), widths = 1, heights = c(0.9,0.9,1), respect = FALSE)
+par(mar = c(1.,4.5,2,1.5))
+
+boxplot(tover[,c("bet.bc1", "Enc.bc1", "XP.bc1", "XA.bc1", "Fi.bc1")],
+        col = c("grey"), boxwex = 0.5, ylab=NULL,
+        main="Early phase", names =c("FE","Enc.","Pl.","An.","Fl."),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0,xaxt="n" )
+
+
+boxplot(tover[,c("bet.bc2", "Enc.bc2", "XP.bc2", "XA.bc2", "Fi.bc2")],
+        col = c("grey"), boxwex = 0.5, ylab="Bray-Curtis turnover",
+        main="Mid phase", names =c("FE","Enc.","Pl.","An.","Fl."),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0,xaxt="n" )
+par(mar = c(2.,4.5,2,1.5))
+
+
+boxplot(tover[,c("bet.bc3", "Enc.bc3", "XP.bc3", "XA.bc3", "Fi.bc3")],
+        col = c("grey"), boxwex = 0.5, ylab=NULL,
+        main="Late phase", names =c("FE","Enc.","Pl.","An.","Fl."),
+        ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0 )
+
+
+
+# Specilisation
+comm.analysis.H2.1<-disjoint(fitted_H2.c1,"H2.c1")
+
+comm.analysis.H2.2<-disjoint(fitted_H2.c2,"H2.c2")
+
+comm.analysis.H2.3<-disjoint(fitted_H2.c3,"H2.c3")
+
+#Modularity
+
+comm.analysis.mod.1<-disjoint(fitted_mod.c1,"mod.c1")
+
+comm.analysis.mod.2<-disjoint(fitted_mod.c2,"mod.c2")
+
+comm.analysis.mod.3<-disjoint(fitted_mod.c3,"mod.c3")
+
+# nestedness
+
+comm.analysis.nes.1<-disjoint(fitted_nes.c1,"nes.c1")
+
+comm.analysis.nes.2<-disjoint(fitted_nes.c2,"nes.c2")
+
+comm.analysis.nes.3<-disjoint(fitted_nes.c3,"nes.c3")
+
+comm.analysis.H2.1$response<-"H2.c1"
+comm.analysis.H2.3$response<-"H2.c3"
+comm.analysis.mod.1$response<-"mod.c1"
+comm.analysis.nes.1$response<-"nes.c1"
+comm.analysis.nes.2$response<-"nes.c2"
+comm.analysis.nes.3$response<-"nes.c3"
+dis.str.table<-rbind(comm.analysis.H2.1,comm.analysis.H2.3,
+      comm.analysis.mod.1,
+      comm.analysis.nes.1,comm.analysis.nes.2,comm.analysis.nes.3)
+
+
+dis.str.table<-dis.str.table %>% 
+  mutate(Phase = case_when(
+    str_sub(response,-1) == "1" ~ "Early",
+    str_sub(response,-1) == "2" ~ "Mid",
+    str_sub(response,-1) == "3" ~ "Late",
+    TRUE ~ ""
+  ))
+
+dis.str.table<-dis.str.table %>% 
+  mutate(Structure = case_when(
+    str_sub(response,1,2) == "H2" ~ "H2",
+    str_sub(response,1,3) == "mod" ~ "mod",
+    str_sub(response,1,3) == "nes" ~ "nes",
+    TRUE ~ ""
+  ))
+
+
+dis.str.table$Structure<-factor(dis.str.table$Structure, levels = c("H2","mod","nes"))
+
+dis.str.table$response<-factor(dis.str.table$response, 
+                               levels = c("H2.c1", "mod.c1", "nes.c1",
+                                              "nes.c2", 
+                                              "H2.c3", "nes.c3"))
+dis.str.table$Phase<-factor(dis.str.table$Phase, levels = c("Early","Mid","Late"))
+dis.str.table$Perc<-dis.str.table$Perc*100
+
+dis_plot<-ggplot(dis.str.table) +
+  geom_bar(aes(fill = Var, y = Perc, x = Structure), 
+           position = "dodge", stat = "identity") + 
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 14),  
+        axis.text.y = element_text(size = 14),  
+        axis.title.x = element_text(size = 14),  
+        axis.title.y = element_text(size = 14),  
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 14),  # Adjust legend title size
+        strip.text = element_text(size = 14)) +
+  labs(y = "Disjoint contribution (%)", fill = "Turnover predictor") +  # Rename legend
+  facet_grid(Phase ~ ., switch = 'y') +
+  
+  # Custom axis labels with expressions
+  scale_x_discrete(labels = c("Vis" = bquote(Delta ~ "Interaction"), 
+                              "H2" = bquote(Delta ~ "Specialisation"), 
+                              "mod" = bquote(Delta ~ "Modularity"),
+                              "nes" = TeX("$Delta$ Nestedness"))) +
+  
+  # Apply Set1 palette for fill colors
+  scale_fill_brewer(palette = "Set1", 
+                    labels = c("bet.bc" = TeX("$Delta$ Foraging effort"), 
+                               "Enc.bc" = TeX("$Delta$ Encounter rate"),
+                               "XP.bc" = TeX("$Delta$ Plant density"),
+                               "XA.bc" = TeX("$Delta$ Animal density"),
+                               "Fi.bc" = TeX("$Delta$ Floral resource")))
