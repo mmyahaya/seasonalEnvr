@@ -1,10 +1,10 @@
+# Load required packages
 library(deSolve)
 library(bipartite)
 library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(reshape2)
-library(gridExtra)
+
+
+# Define the Lotka-Volterra function
 lotka<-function(t,y,parameters){
   with(as.list(c(y,parameters)),{
     Xx<-y
@@ -21,7 +21,7 @@ lotka<-function(t,y,parameters){
   })
 }
 
-
+# Define random number generator
 Urand<-function(mu_y,var_y,m,n){
   a<-mu_y
   b<-sqrt((3*var_y)/(mu_y**2))
@@ -29,7 +29,9 @@ Urand<-function(mu_y,var_y,m,n){
   Urand<-a*(1+b*(2*matrix(runif(m*n,0,1),m,n)-1))
   return(Urand)
 }
+
 set.seed(1234)
+
 M=7 #plant
 N=13 #animal
 set.seed(1234)
@@ -73,18 +75,11 @@ yini=c(c(X0),c(Fi0),c(bet0))
 times=seq(0,20000,.1)
 parameters=list(rP=rP,rA=rA,CP=CP,CA=CA,a=a,w=w,sigma_A=sigma_A,
                 sigma_P=sigma_P, G=G,sP=sP,sA=sA,uP=uP,uA=uA)
-system.time(solution<-ode(y=yini, times=times, func=lotka, parms=parameters))
+solution<-ode(y=yini, times=times, func=lotka, parms=parameters)
 {X<-as.matrix(solution[,2:(M+N+1)])
   Fi<-as.matrix(solution[,(M+N+2):(2*M+N+1)])
   ForEffMatA<-as.matrix(solution[,(2*M+N+2):(M*N+2*M+N+1)])
-  XPF<-as.matrix(X[length(times),1:M],nr=M)
-  XAF<-as.matrix(X[length(times),(M+1):(M+N)],nr=N)
-  FiF<-as.matrix(Fi[length(times),],nr=M)
-  bet<-matrix(ForEffMatA[length(times),],M,N)
-  V<-bet*(FiF%*%t(XAF))}
-
-
-
+}
 
 
 layout(matrix(1:4, ncol = 2), widths = 1, heights = c(1,1), respect = FALSE)
@@ -155,79 +150,5 @@ matplot((1:nrow(P1))/10,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = 
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)",
         cex.lab=2.0,cex.axis=2.0)
 
-bc.t.over<-data.frame("Vis.bc"=numeric(),"bet.bc"=numeric(), "Enc.bc"=numeric(),
-                      "XP.bc"=numeric(),"XA.bc"=numeric(),"Fi.bc"=numeric(),
-                      "H2.c"=numeric(),"mod.c"=numeric(),"nes.c"=numeric())
-for (i in seq(1,(dim(solu1)[1]-70),70)){
-  XP.a<-as.matrix(P1[i,2:(M+1)],nr=M)
-  XA.a<-as.matrix(A1[i,2:(N+1)],nr=N)
-  Fi.a<-as.matrix(F1[i,2:(M+1)],nr=M)
-  bet.a<-matrix(FE[i,2:(M*N+1)],M,N)
-  V.a<-bet.a*(Fi.a%*%t(XA.a))
-  E.a<-Fi.a%*%t(XA.a)
-  # H2.a<-bipartite::H2fun(V.a, H2_integer = FALSE)[1] #Specialisation
-  # mod.a<-bipartite::computeModules(V.a)@likelihood  # Modularity
-  # nes.a<-bipartite::nested(V.a,method = "WNODA") #Nestedness
-  #
-
-  XP.b<-as.matrix(P1[i+70,2:(M+1)],nr=M)
-  XA.b<-as.matrix(A1[i+70,(2):(N+1)],nr=N)
-  Fi.b<-as.matrix(F1[i+70,2:(M+1)],nr=M)
-  bet.b<-matrix(ForEffMatA[i+70,],M,N)
-  V.b<-bet.b*(Fi.b%*%t(XA.b))
-  E.b<-Fi.b%*%t(XA.b)
-  # #Computation of network structural properties
-  # H2.b<-bipartite::H2fun(V.b, H2_integer = FALSE)[1] #Specialisation
-  # mod.b<-bipartite::computeModules(V.b)@likelihood  # Modularity
-  # nes.b<-bipartite::nested(V.b,method = "WNODA") # Nestedness
-  #
-  # H2.c<- abs(H2.a-H2.b)
-  # mod.c<- abs(mod.a-mod.b)
-  # nes.c<- abs(nes.a-nes.b)
-  #
-  H2.c<- mod.c<- nes.c<- 1
-  #
-
-  #Bray-Curtis
-  Vis.bc.value<-1-(2*sum(pmin(V.a,V.b))/(sum(V.a)+sum(V.b)))
-  bet.bc.value<-1-(2*sum(pmin(bet.a,bet.b))/(sum(bet.a)+sum(bet.b)))
-  Enc.bc.value<-1-(2*sum(pmin(E.a,E.b))/(sum(E.a)+sum(E.b)))
-  XP.bc.value<-1-(2*sum(pmin(XP.a,XP.b))/(sum(XP.a)+sum(XP.b)))
-  XA.bc.value<-1-(2*sum(pmin(XA.a,XA.b))/(sum(XA.a)+sum(XA.b)))
-  Fi.bc.value<-1-(2*sum(pmin(Fi.a,Fi.b))/(sum(Fi.a)+sum(Fi.b)))
-  bc.value<-data.frame("Vis.bc"=Vis.bc.value, "bet.bc"=bet.bc.value,
-                       "Enc.bc"=Enc.bc.value,"XP.bc"=XP.bc.value,
-                       "XA.bc"=XA.bc.value,"Fi.bc"=Fi.bc.value,
-                       "H2.c"=H2.c,"mod.c"=mod.c,"nes.c"=nes.c)
-  bc.t.over<-rbind(bc.t.over,bc.value)
-}
-{n1<-1
-n2<-floor(seq(1,nrow(bc.t.over),length.out=4))[2]
-n3<-floor(seq(1,nrow(bc.t.over),length.out=4))[3]
-n4<-nrow(bc.t.over)}
-
-
-
-structures<-data.frame()
-for(i in seq(1,(dim(solu1)[1]),70)){
-  XA.t<-as.matrix(A1[i,2:(N+1)],nr=N)
-  XP.t<-as.matrix(P1[i,2:(M+1)])
-  Fi.t<-as.matrix(F1[i,2:(M+1)],nr=M)
-  Enc.t<-Fi.t%*%t(XA.t)
-  bet.t<-matrix(FE[i,2:(M*N+1)],M,N)
-  V.t<-bet.t*(Fi.t%*%t(XA.t))
-  #Computation of network structural properties
-  H2<-H2fun(V.t, H2_integer = FALSE)[1] #Specialisation
-  mod<-computeModules(V.t)@likelihood  # Modularity
-  nes<-nested(V.t,method = "WNODA") # Nestedness
-  structures.values<-c(H2,mod,nes,mean(XP.t),mean(XA.t),mean(Fi.t),
-                       mean(c(Enc.t)),mean(c(V.t)))
-  structures<-rbind(structures,structures.values)
-}
-structures<-c(colMeans(structures[n1:n2,]),colMeans(structures[(n2+1):n3,]),
-              colMeans(structures[n3:n4,]))
-names(structures)<-c("H2.1","mod.1","nes.1","XP.1","XA.1","Fi.1","Enc.1","V.1",
-                     "H2.2","mod.2","nes.2","XP.2","XA.2","Fi.2","Enc.2","V.2",
-                     "H2.3","mod.3","nes.3","XP.3","XA.3","Fi.3","Enc.3","V.3")
 
 
