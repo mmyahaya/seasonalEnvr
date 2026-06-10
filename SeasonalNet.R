@@ -34,7 +34,7 @@ set.seed(1234)
 
 M=7 #plant
 N=13 #animal
-set.seed(1234)
+set.seed(123)
 {RMatA<-matrix(1/M,M,N)
 
   uP<-Urand(0.1,0.02,M,1)
@@ -150,5 +150,70 @@ matplot((1:nrow(P1))/10,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = 
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)",
         cex.lab=2.0,cex.axis=2.0)
 
+zscore_metric <- function(net, FUN, nrep = 999, method = "r2d") {
+  obs <- FUN(net)
+  nulls <- nullmodel(net, N = nrep, method = method)
+  sims <- sapply(nulls, FUN)
+  (obs - mean(sims)) / sd(sims)
+}
+
+# Example
+z_nested <- zscore_metric(net, function(x) nested(x, method = "WNODA"))
+z_mod    <- zscore_metric(net, function(x) computeModules(x)@likelihood)
+
+bc.t.over<-data.frame("Vis.bc"=numeric(),  "bet.bc"=numeric(), "Enc.bc"=numeric(),
+                      "XP.bc"=numeric(),"XA.bc"=numeric(),"Fi.bc"=numeric())
+for (i in seq(1,(dim(solu1)[1]-70),70)){
+  XP.a<-as.matrix(P1[i,2:(M+1)],nr=M)
+  XA.a<-as.matrix(A1[i,2:(N+1)],nr=N)
+  Fi.a<-as.matrix(F1[i,2:(M+1)],nr=M)
+  bet.a<-as.numeric(matrix(FE[i,2:(M*N+1)],M,N))
+  V.a<-bet.a*(Fi.a%*%t(XA.a))
+  E.a<-Fi.a%*%t(XA.a)
+  H2.a<-bipartite::H2fun(V.a, H2_integer = FALSE)[1] #Specialisation
+  mod.a<-bipartite::computeModules(V.a)@likelihood  # Modularity
+ 
+  
+  
+  XP.b<-as.matrix(P1[i+70,2:(M+1)],nr=M)
+  XA.b<-as.matrix(A1[i+70,(2):(N+1)],nr=N)
+  Fi.b<-as.matrix(F1[i+70,2:(M+1)],nr=M)
+  bet.b<-as.numeric(matrix(ForEffMatA[i+70,],M,N))
+  V.b<-bet.b*(Fi.b%*%t(XA.b))
+  E.b<-Fi.b%*%t(XA.b)
+  
+ 
+  
+  
+  #Bray-Curtis
+  Vis.bc.value<-1-(2*sum(pmin(V.a,V.b))/(sum(V.a)+sum(V.b)))
+  bet.bc.value<-1-(2*sum(pmin(bet.a,bet.b))/(sum(bet.a)+sum(bet.b)))
+  Enc.bc.value<-1-(2*sum(pmin(E.a,E.b))/(sum(E.a)+sum(E.b)))
+  XP.bc.value<-1-(2*sum(pmin(XP.a,XP.b))/(sum(XP.a)+sum(XP.b)))
+  XA.bc.value<-1-(2*sum(pmin(XA.a,XA.b))/(sum(XA.a)+sum(XA.b)))
+  Fi.bc.value<-1-(2*sum(pmin(Fi.a,Fi.b))/(sum(Fi.a)+sum(Fi.b)))
+  bc.value<-data.frame("Vis.bc"=Vis.bc.value, "bet.bc"=bet.bc.value,
+                       "Enc.bc"=Enc.bc.value,"XP.bc"=XP.bc.value,
+                       "XA.bc"=XA.bc.value,"Fi.bc"=Fi.bc.value)
+  bc.t.over<-rbind(bc.t.over,bc.value)
+  
+}
+
+n1<-1
+n2<-floor(seq(1,nrow(bc.t.over),length.out=4))[2]
+n3<-floor(seq(1,nrow(bc.t.over),length.out=4))[3]
+n4<-nrow(bc.t.over)
+
+
+
+data(Safariland)
+nullmodel(Safariland, N=2, method=1)
+
+nulNet<-nullmodel(V.a, N=100, method = 1)
+
+N_null <- sapply(
+  nulNet,
+  function(m) bipartite::nested(m,method = "WNODA")
+)
 
 

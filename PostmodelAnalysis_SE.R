@@ -330,6 +330,8 @@ boxplot(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],col = c("grey"), boxwex = 0.5,
         ylab=TeX("$Delta V$"),
         main="Interaction", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+points(colMeans(tover[,c("Vis.bc1","Vis.bc2","Vis.bc3")],na.rm = T),
+       pch=8)
 text(0.6,1,"(a) ",cex=2.0)
 
 
@@ -340,17 +342,23 @@ boxplot(H2.cmat,col = c("grey"), boxwex = 0.5,
         ylab=(TeX("$\\Delta H'_2$")),
         main="Specialisation", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+points(colMeans(H2.cmat),
+       pch=8)
 text(0.6,1,"(b) ",cex=2.0)
 
 
 boxplot(mod.cmat,col = c("grey","white","white"), boxwex = 0.5, ylab=(TeX("$\\Delta Q$")),
         main="Modularity", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+points(colMeans(mod.cmat),
+       pch=8)
 text(0.6,1,"(c) ",cex=2.0)
 
 boxplot(nes.cmat,col = c("grey"), boxwex = 0.5, ylab=(TeX("$\\Delta N$")),
         main="Nestedness", names =c("Early","Mid", "Late"),
         ylim = c(0, 1),cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
+points(colMeans(nes.cmat),
+       pch=8)
 text(0.6,1,"(d) ",cex=2.0)
 
 

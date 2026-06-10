@@ -1,14 +1,26 @@
 
 
 solu<-as.data.frame(solution[(53*365*10+1):(54*365*10+1),])
-solu1<-solu
-#%>%
-#filter(rowMeans(solu[,(M+2):(M+N+1)])>0.001 & rowMeans(solu[,2:(1+M)])>0.001)
+solu1<-solu %>%
+ filter(rowMeans(solu[,(M+2):(M+N+1)])>0.001 & rowMeans(solu[,2:(1+M)])>0.001)
 
-P1<-solu1[,1:(M+1)]
-A1<-solu1[,c(1,(M+2):(M+N+1))]
-F1<-solu1[,c(1,(M+N+2):(2*M+N+1))]
-FE<-solu1[,c(1,(2*M+N+2):(M*N+2*M+N+1))]
+t1<-match(solu1[1,1],solu[,1])
+t2<-match(solu1[nrow(solu1),1],solu[,1])
+
+
+P1<-solu[,1:(M+1)]
+A1<-solu[,c(1,(M+2):(M+N+1))]
+F1<-solu[,c(1,(M+N+2):(2*M+N+1))]
+FE<-solu[,c(1,(2*M+N+2):(M*N+2*M+N+1))]
+{vars1 <- c(rP,rA)
+  vars2 <- c(sP,sA)
+  vars3<- c(uP,uA)
+  mult_one <- function(var1, var2, var3)
+  {
+    var1*sin(times/58.0916+var2)+var3
+  }
+  y_coordinates<-mapply(mult_one,vars1, vars2, vars3)}
+
 
 rP1<-y_coordinates[(53*365*10+1):(54*365*10+1),1:M]
 rA1<-y_coordinates[(53*365*10+1):(54*365*10+1),(M+1):(M+N)]
@@ -25,27 +37,35 @@ par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(rP1, type = "l",lty = "solid", lwd=2 , pch=1,col = 1:M, main=NA,
         ylab = "growth rate", xaxt="n",cex.lab=2.0,cex.axis=1.5 )
 abline(h=0)
+abline(v=c(t1,t2), lty="dashed")
 text(400,-1,"Plant ",cex=2.0)
 par(mar = c(0.5, 4.5, 2.0, 2.0))
-matplot(P1[,1],P1[,-1], type = "l",lwd=2,lty = "solid" , pch = 1, col=1:M,
+matplot(P1[,-1], type = "l",lwd=2,lty = "solid" , pch = 1, col=1:M,
         main=NA,
         ylab = "Plant density", xlab = NA,xaxt="n",cex.lab=2.0,cex.axis=2.0)
+abline(v=c(t1,t2), lty="dashed")
+
+
 par(mar = c(4.1, 4.5, 0.5, 2.0))
 matplot(st,F1[,-1],lwd=2, type = "l",lty = "solid" , pch = 1, col=1:M,
         main=NA, ylab = "Floral resource", xlab ="Time (day)", cex.lab=2.0,cex.axis=2.0)
+abline(v=c(st[t1],st[t2]), lty="dashed")
 par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(rA1, type = "l",lty = "solid" , lwd=2, pch = 1, col=1:N,
         main=NA, ylab = "growth rate", xaxt="n",cex.lab=2.0,cex.axis=1.5 )
 abline(h=0)
 text(500,-0.3,"Animal ",cex=2.0)
+abline(v=c(t1,t2), lty="dashed")
 par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(A1[,-1], type = "l",lwd=2,lty = "solid" , pch=1,col = 1:N,
         main=NA, ylab = "Animal density", xlab = "Time",xaxt="n",cex.lab=2.0,cex.axis=2.0)
-
+abline(v=c(t1,t2), lty="dashed")
 par(mar = c(4.1, 4.5, 0.5, 2.0))
 matplot(st,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = rep(1:N, each=M),
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)",
         cex.lab=2.0,cex.axis=2.0)
+abline(v=c(st[t1],st[t2]), lty="dashed")
 
-dev.copy(jpeg,"intrinsic.tiff",width = 300, height = 300,units = "mm", res = 600)
+
+dev.copy(jpeg,"intrinsic_srep.tiff",width = 300, height = 300,units = "mm", res = 600)
 dev.off()
