@@ -139,14 +139,14 @@ dev.off()
 #Steady
 
 
-layout(matrix(1:6, ncol = 2), widths = 1, heights = 1, respect = FALSE)
+layout(matrix(1:8, ncol = 2, , byrow = T), widths = 1, heights = 1, respect = FALSE)
 par(mar = c(4, 4.5, 3, 2.0))
 
 plot(bc.t.over[,1], ylab = "Turnover",ylim = c(0,1), xlab = "Transition", pch=16, main ="Interaction",cex=2.0,
      cex.lab=2.0,cex.axis=2.0,cex.main=2.0)
 abline(v=c(n2+0.5,n3+0.5))
 
-for (i in seq(1,(dim(solu1)[1]-70),70)[c(5,10,15,20,25)]){
+for (i in seq(1,(dim(solu1)[1]-70),70)[c(1,5,9,13,17,21,25)]){
   
   
   par(mar = c(1,1,1,0.5))
@@ -157,18 +157,18 @@ for (i in seq(1,(dim(solu1)[1]-70),70)[c(5,10,15,20,25)]){
   V.a<-bet.a*(Fi.a%*%t(XA.a))
   
   # Remove species with marginal totals < 0.01
-  row.keep <- rowSums(V.a) >= 0.01
-  col.keep <- colSums(V.a) >= 0.01
+  # row.keep <- rowSums(V.a) >= 0.01
+  # col.keep <- colSums(V.a) >= 0.01
   
-  V.a.filt <- V.a[row.keep, col.keep, drop = FALSE]
+  #V.a.filt <- V.a[row.keep, col.keep, drop = FALSE]
 
-  plotweb(web=V.a.filt,
+  plotweb(web=V.a,
           empty = TRUE,
           higher_color  = "red3",
           higher_labels = FALSE,
           lower_labels = FALSE,
           lower_color  = "blue3",
           link_color ="grey")}
-dev.copy(jpeg,"plotweb2.tiff",width = 300, height = 250,units = "mm", res = 600)
+dev.copy(jpeg,"plotweb2.tiff",width = 225, height = 250,units = "mm", res = 600)
 dev.off()
 

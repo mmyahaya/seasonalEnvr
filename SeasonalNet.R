@@ -150,16 +150,9 @@ matplot((1:nrow(P1))/10,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = 
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)",
         cex.lab=2.0,cex.axis=2.0)
 
-zscore_metric <- function(net, FUN, nrep = 999, method = "r2d") {
-  obs <- FUN(net)
-  nulls <- nullmodel(net, N = nrep, method = method)
-  sims <- sapply(nulls, FUN)
-  (obs - mean(sims)) / sd(sims)
-}
 
 # Example
-z_nested <- zscore_metric(net, function(x) nested(x, method = "WNODA"))
-z_mod    <- zscore_metric(net, function(x) computeModules(x)@likelihood)
+
 
 bc.t.over<-data.frame("Vis.bc"=numeric(),  "bet.bc"=numeric(), "Enc.bc"=numeric(),
                       "XP.bc"=numeric(),"XA.bc"=numeric(),"Fi.bc"=numeric())
@@ -203,17 +196,4 @@ n1<-1
 n2<-floor(seq(1,nrow(bc.t.over),length.out=4))[2]
 n3<-floor(seq(1,nrow(bc.t.over),length.out=4))[3]
 n4<-nrow(bc.t.over)
-
-
-
-data(Safariland)
-nullmodel(Safariland, N=2, method=1)
-
-nulNet<-nullmodel(V.a, N=100, method = 1)
-
-N_null <- sapply(
-  nulNet,
-  function(m) bipartite::nested(m,method = "WNODA")
-)
-
 

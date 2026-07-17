@@ -6,7 +6,8 @@ solu1<-solu %>%
 
 t1<-match(solu1[1,1],solu[,1])
 t2<-match(solu1[nrow(solu1),1],solu[,1])
-
+m1<-seq(from= t1, to=t2, length.out =4)[2]
+m2<-seq(from= t1, to=t2, length.out =4)[3]
 
 P1<-solu[,1:(M+1)]
 A1<-solu[,c(1,(M+2):(M+N+1))]
@@ -37,35 +38,35 @@ par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(rP1, type = "l",lty = "solid", lwd=2 , pch=1,col = 1:M, main=NA,
         ylab = "growth rate", xaxt="n",cex.lab=2.0,cex.axis=1.5 )
 abline(h=0)
-abline(v=c(t1,t2), lty="dashed")
+abline(v=c(t1,m1,m2,t2), lty=c(1,2,2,1))
 text(400,-1,"Plant ",cex=2.0)
 par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(P1[,-1], type = "l",lwd=2,lty = "solid" , pch = 1, col=1:M,
         main=NA,
         ylab = "Plant density", xlab = NA,xaxt="n",cex.lab=2.0,cex.axis=2.0)
-abline(v=c(t1,t2), lty="dashed")
+abline(v=c(t1,m1,m2,t2), lty=c(1,2,2,1))
 
 
 par(mar = c(4.1, 4.5, 0.5, 2.0))
 matplot(st,F1[,-1],lwd=2, type = "l",lty = "solid" , pch = 1, col=1:M,
         main=NA, ylab = "Floral resource", xlab ="Time (day)", cex.lab=2.0,cex.axis=2.0)
-abline(v=c(st[t1],st[t2]), lty="dashed")
+abline(v=c(st[t1],st[m1],st[m2],st[t2]), lty=c(1,2,2,1))
 par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(rA1, type = "l",lty = "solid" , lwd=2, pch = 1, col=1:N,
         main=NA, ylab = "growth rate", xaxt="n",cex.lab=2.0,cex.axis=1.5 )
 abline(h=0)
 text(500,-0.3,"Animal ",cex=2.0)
-abline(v=c(t1,t2), lty="dashed")
+abline(v=c(t1,m1,m2,t2), lty=c(1,2,2,1))
 par(mar = c(0.5, 4.5, 2.0, 2.0))
 matplot(A1[,-1], type = "l",lwd=2,lty = "solid" , pch=1,col = 1:N,
         main=NA, ylab = "Animal density", xlab = "Time",xaxt="n",cex.lab=2.0,cex.axis=2.0)
-abline(v=c(t1,t2), lty="dashed")
+abline(v=c(t1,m1,m2,t2), lty=c(1,2,2,1))
 par(mar = c(4.1, 4.5, 0.5, 2.0))
 matplot(st,FE[,-1], type = "l", lwd=2,lty ="solid" ,pch = 1, col = rep(1:N, each=M),
         main=NA ,ylab = "Foraging effort ",xlab="Time (day)",
         cex.lab=2.0,cex.axis=2.0)
-abline(v=c(st[t1],st[t2]), lty="dashed")
+abline(v=c(st[t1],st[m1],st[m2],st[t2]), lty=c(1,2,2,1))
 
 
-dev.copy(jpeg,"intrinsic_srep.tiff",width = 300, height = 300,units = "mm", res = 600)
+dev.copy(jpeg,"intrinsic_srep1503.tiff",width = 300, height = 300,units = "mm", res = 600)
 dev.off()
